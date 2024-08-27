@@ -1,19 +1,35 @@
-// LoginScreen.js
 import React, { useState } from 'react';
 import { View, TextInput, Button, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { auth } from '../firebaseConfig'; // Import the auth instance
+import { auth, firestore } from '../firebaseConfig'; // Import the auth and firestore instances
 import { signInWithEmailAndPassword } from 'firebase/auth';
+import { doc, getDoc } from 'firebase/firestore';
 
-const LoginScreen = ({ navigation }) => { // Receive navigation prop
+const LoginScreen = ({ navigation }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
 
   const handleLogin = () => {
     signInWithEmailAndPassword(auth, email, password)
-      .then((userCredential) => {
+      .then(async (userCredential) => {
         console.log('User logged in:', userCredential.user.email);
-        navigation.navigate('Home'); // Redirect to Home screen
+        // Fetch the user's document from Firestore to get the role
+        const userDocRef = doc(firestore, 'users', userCredential.user.uid);
+        const userDoc = await getDoc(userDocRef);
+
+        if (userDoc.exists()) {
+          const userData = userDoc.data();
+          const userRole = userData.role;
+
+          // Navigate based on the user's role
+          if (userRole === 'therapist') {
+            navigation.navigate('TherapistHome'); // Navigate to Therapist Home screen
+          } else {
+            navigation.navigate('Home'); // Navigate to Normal Home screen
+          }
+        } else {
+          setError('User data not found');
+        }
       })
       .catch((error) => {
         setError(error.message);

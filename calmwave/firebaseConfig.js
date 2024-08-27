@@ -1,16 +1,17 @@
-// firebaseConfig.js
 import { initializeApp } from 'firebase/app';
 import { getAuth, initializeAuth, getReactNativePersistence } from 'firebase/auth';
+import { getFirestore } from 'firebase/firestore';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyDgB3p0B3alcKo4G6ZNnRGBHv2TjJu0hv0",
-  authDomain: "calmwave-fd31b.firebaseapp.com",
-  projectId: "calmwave-fd31b",
-  storageBucket: "calmwave-fd31b.appspot.com",
-  messagingSenderId: "772521458657",
-  appId: "1:772521458657:web:b8f3e16e8a141062b8b0a0"
+  apiKey: "AIzaSyAskTZb0n86kn6lICyNsqu_m05NaS5P-5Q",
+  authDomain: "calmwave-6c9ae.firebaseapp.com",
+  projectId: "calmwave-6c9ae",
+  storageBucket: "calmwave-6c9ae.appspot.com",
+  messagingSenderId: "963313266312",
+  appId: "1:963313266312:web:2c1842f53c82fc7a22393d",
+  measurementId: "G-EDVQ43L81D"
 };
 
 // Initialize Firebase
@@ -21,4 +22,7 @@ const auth = initializeAuth(app, {
   persistence: getReactNativePersistence(AsyncStorage)
 });
 
-export { auth };
+// Initialize Firestore
+const firestore = getFirestore(app);
+
+export { auth, firestore };
