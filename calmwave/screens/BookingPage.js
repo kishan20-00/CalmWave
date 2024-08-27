@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, Button, Image, ScrollView, Platform } from 'rea
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { firestore, auth } from '../firebaseConfig';
 import { collection, getDocs, query, where, addDoc } from 'firebase/firestore';
+import StarRating from 'react-native-star-rating'; // Install this package if you haven't
 
 const BookingPage = ({ route, navigation }) => {
   const { therapist } = route.params;
@@ -13,6 +14,8 @@ const BookingPage = ({ route, navigation }) => {
   const [userEmail, setUserEmail] = useState('');
   const [userFullName, setUserFullName] = useState('');
   const [userContact, setUserContact] = useState('');
+  const [averageRating, setAverageRating] = useState(0);
+  const [replyCount, setReplyCount] = useState(0);
 
   useEffect(() => {
     const fetchUserDetails = async () => {
@@ -32,8 +35,37 @@ const BookingPage = ({ route, navigation }) => {
       }
     };
 
+    const fetchRatingsAndReplies = async () => {
+      try {
+        const bookingsCollection = collection(firestore, 'booking');
+        const q = query(bookingsCollection, where('therapistEmail', '==', therapist.email));
+        const querySnapshot = await getDocs(q);
+
+        let totalRating = 0;
+        let totalReplies = 0;
+        let count = 0;
+
+        querySnapshot.forEach((doc) => {
+          const data = doc.data();
+          if (data.rating) {
+            totalRating += data.rating;
+            count += 1;
+          }
+          if (data.reply) {
+            totalReplies += 1;
+          }
+        });
+
+        setReplyCount(totalReplies);
+        setAverageRating(count > 0 ? totalRating / count : 0);
+      } catch (error) {
+        console.error('Failed to fetch ratings and replies:', error);
+      }
+    };
+
     fetchUserDetails();
-  }, []);
+    fetchRatingsAndReplies();
+  }, [therapist.email]);
 
   const handleDateChange = (event, selectedDate) => {
     setDatePickerVisible(Platform.OS === 'ios');
@@ -83,6 +115,18 @@ const BookingPage = ({ route, navigation }) => {
       <Text>{therapist.experience} years of experience</Text>
       <Text>Contact: {therapist.contactNumber}</Text>
       
+      {/* Rating and Reply Count */}
+      <View style={styles.ratingContainer}>
+        <StarRating
+          disabled={true}
+          starSize={20}
+          maxStars={5}
+          rating={averageRating}
+          fullStarColor="#FFD700"
+        />
+        <Text style={styles.replyCount}>Replies: {replyCount}</Text>
+      </View>
+
       <Button title="Select Date" onPress={() => setDatePickerVisible(true)} />
       <Button title="Select Time" onPress={() => setTimePickerVisible(true)} />
       
@@ -138,6 +182,14 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   selectedTime: {
+    fontSize: 16,
+    marginTop: 10,
+  },
+  ratingContainer: {
+    alignItems: 'center',
+    marginVertical: 20,
+  },
+  replyCount: {
     fontSize: 16,
     marginTop: 10,
   },

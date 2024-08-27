@@ -1,21 +1,35 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, Button, ScrollView, Dimensions, RefreshControl } from 'react-native';
-import { collection, query, orderBy, limit, onSnapshot } from 'firebase/firestore';
-import { firestore } from '../firebaseConfig'; // Import your Firebase configuration
+import { collection, query, orderBy, limit, onSnapshot, where } from 'firebase/firestore';
+import { firestore, auth } from '../firebaseConfig'; // Import your Firebase configuration and auth
 import { LineChart } from 'react-native-chart-kit';
-import moment from 'moment'; // Ensure moment is installed with `npm install moment`
+import moment from 'moment';
 
 const HomeScreen = ({ navigation }) => {
   const [emotionData, setEmotionData] = useState([]);
+  const [daysWithoutAlcohol, setDaysWithoutAlcohol] = useState(null);
   const [refreshing, setRefreshing] = useState(false);
 
-  // Fetch emotions from Firestore
+  // Function to fetch emotions from Firestore
   const fetchEmotions = async () => {
     try {
+      const user = auth.currentUser; // Get the currently logged-in user
+
+      if (!user) {
+        console.error('User not authenticated');
+        return;
+      }
+
       const emotionsCollection = collection(firestore, 'emotions');
-      const emotionsQuery = query(emotionsCollection, orderBy('timestamp', 'desc'), limit(5)); // Limit to last 5 emotions
+      const emotionsQuery = query(
+        emotionsCollection,
+        where('email', '==', user.email), // Filter by current user's email
+        orderBy('timestamp', 'desc'),
+        limit(5)
+      );
+
       const unsubscribe = onSnapshot(emotionsQuery, (querySnapshot) => {
-        const data = querySnapshot.docs.map(doc => {
+        const data = querySnapshot.docs.map((doc) => {
           const docData = doc.data();
           return {
             ...docData,
@@ -23,8 +37,10 @@ const HomeScreen = ({ navigation }) => {
             timestamp: docData.timestamp.toDate ? docData.timestamp.toDate() : new Date(docData.timestamp), // Handle different timestamp formats
           };
         });
+
         // Reverse the order to display the oldest first on the chart
         setEmotionData(data.reverse());
+        calculateDaysWithoutAlcohol(data); // Calculate days without alcohol
       });
 
       // Clean up subscription on unmount
@@ -32,6 +48,23 @@ const HomeScreen = ({ navigation }) => {
     } catch (error) {
       console.error('Failed to fetch emotions:', error);
     }
+  };
+
+  // Function to calculate days without alcohol
+  const calculateDaysWithoutAlcohol = (emotions) => {
+    let daysCounter = 0;
+    let foundLastYes = false;
+
+    for (let i = 0; i < emotions.length; i++) {
+      if (emotions[i].alcoholConsumption === 'yes') {
+        foundLastYes = true;
+        daysCounter = 0; // Reset counter after finding 'yes'
+      } else if (foundLastYes && emotions[i].alcoholConsumption === 'no') {
+        daysCounter++;
+      }
+    }
+
+    setDaysWithoutAlcohol(daysCounter);
   };
 
   useEffect(() => {
@@ -44,13 +77,21 @@ const HomeScreen = ({ navigation }) => {
     fetchEmotions().finally(() => setRefreshing(false));
   };
 
-  // Map emotions to specific values
+  // Map emotions to specific values and emojis
   const emotionValueMap = {
     worst: 5,
     worse: 10,
     medium: 15,
     happy: 20,
     happier: 25,
+  };
+
+  const emotionEmojiMap = {
+    worst: '😞',
+    worse: '😕',
+    medium: '😐',
+    happy: '😊',
+    happier: '😁',
   };
 
   // Format the emotion data for the chart
@@ -62,6 +103,9 @@ const HomeScreen = ({ navigation }) => {
       },
     ],
   };
+
+  // Get the most recent emotion
+  const latestEmotion = emotionData.length > 0 ? emotionData[emotionData.length - 1] : null;
 
   return (
     <ScrollView
@@ -89,7 +133,26 @@ const HomeScreen = ({ navigation }) => {
         title="Add Emotion"
         onPress={() => navigation.navigate('EmotionForm')}
       />
+      <Button
+        title="Your Bookings"
+        onPress={() => navigation.navigate('UserBookings')}
+      />
       <Text style={styles.text}>Welcome to the Home Screen!</Text>
+
+      {daysWithoutAlcohol !== null && (
+        <View style={styles.alcoholContainer}>
+          <Text style={styles.alcoholText}>Days without alcohol: {daysWithoutAlcohol}</Text>
+        </View>
+      )}
+
+      {latestEmotion && (
+        <View style={styles.latestEmotionContainer}>
+          <Text style={styles.latestEmotionText}>
+            Current Emotion: {emotionEmojiMap[latestEmotion.emotion]} {latestEmotion.emotion}
+          </Text>
+        </View>
+      )}
+
       {emotionData.length > 0 && (
         <LineChart
           data={chartData}
@@ -131,6 +194,27 @@ const styles = StyleSheet.create({
   },
   chart: {
     marginVertical: 20,
+  },
+  alcoholContainer: {
+    marginVertical: 20,
+    padding: 10,
+    borderRadius: 5,
+    backgroundColor: '#f0f0f0',
+  },
+  alcoholText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  latestEmotionContainer: {
+    marginVertical: 20,
+    padding: 10,
+    borderRadius: 5,
+    backgroundColor: '#dfe7fd',
+    alignItems: 'center',
+  },
+  latestEmotionText: {
+    fontSize: 18,
+    fontWeight: 'bold',
   },
 });
 

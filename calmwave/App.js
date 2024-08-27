@@ -13,6 +13,7 @@ import BookingPage from './screens/BookingPage';
 import ManageBookings from './screens/ManageBookings';
 import CommunityChat from './screens/CommunityChat';
 import EmotionFormScreen from './screens/EmotionFormScreen';
+import UserBookingsPage from './screens/UserBookingsPage';
 
 const Stack = createStackNavigator();
 
@@ -73,6 +74,11 @@ export default function App() {
         <Stack.Screen 
           name="EmotionForm" 
           component={EmotionFormScreen} 
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen 
+          name="UserBookings" 
+          component={UserBookingsPage} 
           options={{ headerShown: false }}
         />
       </Stack.Navigator>

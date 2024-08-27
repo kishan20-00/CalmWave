@@ -6,6 +6,7 @@ import { auth } from '../firebaseConfig'; // Import the auth module from firebas
 
 const EmotionFormScreen = ({ navigation }) => {
   const [selectedEmotion, setSelectedEmotion] = useState(null);
+  const [alcoholConsumption, setAlcoholConsumption] = useState(null); // State for alcohol consumption
 
   const emotions = [
     { label: '😢', value: 'worst' },
@@ -18,6 +19,11 @@ const EmotionFormScreen = ({ navigation }) => {
   const saveEmotion = async () => {
     if (!selectedEmotion) {
       Alert.alert('Please select an emotion');
+      return;
+    }
+
+    if (alcoholConsumption === null) {
+      Alert.alert('Please answer the alcohol consumption question');
       return;
     }
 
@@ -34,6 +40,7 @@ const EmotionFormScreen = ({ navigation }) => {
     const emotionData = {
       timestamp, // Save full timestamp
       emotion: selectedEmotion,
+      alcoholConsumption, // Include the alcohol consumption answer
       email: user.email, // Include the user's email
     };
 
@@ -65,6 +72,27 @@ const EmotionFormScreen = ({ navigation }) => {
           </TouchableOpacity>
         ))}
       </View>
+      <Text style={styles.subHeader}>Did you consume alcohol yesterday?</Text>
+      <View style={styles.optionsContainer}>
+        <TouchableOpacity
+          style={[
+            styles.optionButton,
+            alcoholConsumption === 'yes' && styles.selectedOption,
+          ]}
+          onPress={() => setAlcoholConsumption('yes')}
+        >
+          <Text style={styles.optionText}>Yes</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[
+            styles.optionButton,
+            alcoholConsumption === 'no' && styles.selectedOption,
+          ]}
+          onPress={() => setAlcoholConsumption('no')}
+        >
+          <Text style={styles.optionText}>No</Text>
+        </TouchableOpacity>
+      </View>
       <Button title="Save Emotion" onPress={saveEmotion} />
     </View>
   );
@@ -82,7 +110,17 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     fontWeight: 'bold',
   },
+  subHeader: {
+    fontSize: 18,
+    marginBottom: 10,
+  },
   emotionsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    width: '100%',
+    marginBottom: 30,
+  },
+  optionsContainer: {
     flexDirection: 'row',
     justifyContent: 'space-around',
     width: '100%',
@@ -97,8 +135,20 @@ const styles = StyleSheet.create({
   selectedEmotion: {
     borderColor: '#007BFF',
   },
+  optionButton: {
+    padding: 10,
+    borderRadius: 5,
+    borderWidth: 2,
+    borderColor: '#ccc',
+  },
+  selectedOption: {
+    borderColor: '#007BFF',
+  },
   emotionText: {
     fontSize: 30,
+  },
+  optionText: {
+    fontSize: 20,
   },
 });
 
