@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, Button, Image, ScrollView, Platform } from 'rea
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { firestore, auth } from '../firebaseConfig';
 import { collection, getDocs, query, where, addDoc } from 'firebase/firestore';
-import StarRating from 'react-native-star-rating'; // Install this package if you haven't
+import { AirbnbRating } from 'react-native-ratings';
 
 const BookingPage = ({ route, navigation }) => {
   const { therapist } = route.params;
@@ -51,7 +51,7 @@ const BookingPage = ({ route, navigation }) => {
             totalRating += data.rating;
             count += 1;
           }
-          if (data.reply) {
+          if (data.feedback) {
             totalReplies += 1;
           }
         });
@@ -117,12 +117,13 @@ const BookingPage = ({ route, navigation }) => {
       
       {/* Rating and Reply Count */}
       <View style={styles.ratingContainer}>
-        <StarRating
-          disabled={true}
-          starSize={20}
-          maxStars={5}
-          rating={averageRating}
-          fullStarColor="#FFD700"
+        <AirbnbRating
+          count={5}
+          reviews={[]} // No review text
+          defaultRating={averageRating}
+          size={20}
+          isDisabled={true}
+          showRating={false} // Hide the default review text
         />
         <Text style={styles.replyCount}>Replies: {replyCount}</Text>
       </View>

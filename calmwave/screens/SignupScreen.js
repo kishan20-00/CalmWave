@@ -1,13 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { View, TextInput, Button, Text, StyleSheet, TouchableOpacity, TouchableWithoutFeedback, Keyboard } from 'react-native';
 import DropDownPicker from 'react-native-dropdown-picker';
 import { auth, firestore } from '../firebaseConfig';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { doc, setDoc } from 'firebase/firestore';
+import debounce from 'lodash.debounce';
 
 const SignupScreen = ({ navigation }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [retypePassword, setRetypePassword] = useState('');
   const [age, setAge] = useState('');
   const [role, setRole] = useState('user');
   const [contactNumber, setContactNumber] = useState('');
@@ -20,12 +22,22 @@ const SignupScreen = ({ navigation }) => {
     { label: 'Therapist', value: 'therapist' }
   ]);
 
+  // Debounced function to handle email input
+  const debouncedSetEmail = useCallback(
+    debounce((text) => setEmail(text), 300),
+    []
+  );
+
   const handleSignup = () => {
+    if (password !== retypePassword) {
+      setError('Passwords do not match');
+      return;
+    }
+
     createUserWithEmailAndPassword(auth, email, password)
       .then(async (userCredential) => {
         console.log('User signed up:', userCredential.user.email);
 
-        // Save additional fields to Firestore
         const userDocRef = doc(firestore, 'users', userCredential.user.uid);
         await setDoc(userDocRef, {
           email,
@@ -34,7 +46,6 @@ const SignupScreen = ({ navigation }) => {
           contactNumber,
         });
 
-        // Navigate to the appropriate home screen based on role
         if (role === 'therapist') {
           navigation.navigate('TherapistHome');
         } else {
@@ -54,8 +65,7 @@ const SignupScreen = ({ navigation }) => {
         <TextInput
           style={styles.input}
           placeholder="Email"
-          value={email}
-          onChangeText={setEmail}
+          onChangeText={debouncedSetEmail} // Use debounced function for email
           keyboardType="email-address"
           autoCapitalize="none"
         />
@@ -64,6 +74,13 @@ const SignupScreen = ({ navigation }) => {
           placeholder="Password"
           value={password}
           onChangeText={setPassword}
+          secureTextEntry
+        />
+        <TextInput
+          style={styles.input}
+          placeholder="Retype Password"
+          value={retypePassword}
+          onChangeText={setRetypePassword}
           secureTextEntry
         />
         <TextInput
@@ -101,7 +118,7 @@ const SignupScreen = ({ navigation }) => {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1, // Ensure the container takes up the whole screen
+    flex: 1,
     justifyContent: 'center',
     padding: 20,
   },
