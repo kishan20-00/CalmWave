@@ -9,16 +9,43 @@ const TherapistListScreen = ({ navigation }) => {
   const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
-    const fetchTherapists = async () => {
-      const therapistsCollection = collection(firestore, 'users');
-      const therapistSnapshot = await getDocs(therapistsCollection);
-      const therapistList = therapistSnapshot.docs
-        .map(doc => ({ id: doc.id, ...doc.data() }))
-        .filter(doc => doc.role === 'therapist'); // Filter only therapists
-      setTherapists(therapistList);
+    const fetchTherapistsAndRatings = async () => {
+      try {
+        // Fetching therapists from 'users' collection
+        const therapistsCollection = collection(firestore, 'users');
+        const therapistSnapshot = await getDocs(therapistsCollection);
+        const therapistList = therapistSnapshot.docs
+          .map(doc => ({ id: doc.id, ...doc.data() }))
+          .filter(doc => doc.role === 'therapist'); // Filter only therapists
+
+        // Fetching bookings from 'booking' collection
+        const bookingsCollection = collection(firestore, 'booking');
+        const bookingSnapshot = await getDocs(bookingsCollection);
+        const bookingsList = bookingSnapshot.docs.map(doc => doc.data());
+
+        // Map therapists to their ratings
+        const therapistsWithRatings = therapistList.map(therapist => {
+          // Filter bookings related to this therapist
+          const therapistBookings = bookingsList.filter(
+            booking => booking.therapistEmail === therapist.email
+          );
+
+          // Calculate mean rating if there are any ratings available
+          const meanRating =
+            therapistBookings.length > 0
+              ? therapistBookings.reduce((sum, booking) => sum + (booking.rating || 0), 0) / therapistBookings.length
+              : 'N/A';
+
+          return { ...therapist, rating: meanRating };
+        });
+
+        setTherapists(therapistsWithRatings);
+      } catch (error) {
+        console.error('Error fetching therapists and ratings:', error);
+      }
     };
 
-    fetchTherapists();
+    fetchTherapistsAndRatings();
   }, []);
 
   const filteredTherapists = therapists.filter(therapist =>
@@ -38,11 +65,10 @@ const TherapistListScreen = ({ navigation }) => {
         <Image source={profileImage} style={styles.image} />
         <View style={styles.infoContainer}>
           <Text style={styles.name}>{item.fullName}</Text>
-          <Text style={styles.specialty}>{item.specialty || 'Specialty Not Available'}</Text>
           <Text style={styles.hospitalName}>{item.hospitalName}</Text>
           <Text style={styles.experience}>{item.experience ? `${item.experience} years of experience` : 'Experience Not Available'}</Text>
           <View style={styles.ratingContainer}>
-            <Text style={styles.rating}>{item.rating || 'N/A'}</Text>
+            <Text style={styles.rating}>{item.rating !== 'N/A' ? item.rating : 'N/A'}</Text>
             <Image source={require('../assets/star.png')} style={styles.starIcon} />
           </View>
         </View>
@@ -52,9 +78,6 @@ const TherapistListScreen = ({ navigation }) => {
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      {/* <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-        <Text style={styles.backButtonText}>{"<"}</Text>
-      </TouchableOpacity> */}
       <Text style={styles.heading}>THERAPY SCHEDULING</Text>
       <TextInput
         style={styles.searchBar}
@@ -71,9 +94,6 @@ const TherapistListScreen = ({ navigation }) => {
         contentContainerStyle={styles.list}
         scrollEnabled={false} // Disable FlatList's internal scroll to let ScrollView handle it
       />
-      <TouchableOpacity onPress={() => navigation.navigate('AllTherapists')}>
-        <Text style={styles.seeAll}>See all</Text>
-      </TouchableOpacity>
     </ScrollView>
   );
 };
@@ -149,12 +169,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginBottom: 5,
     color: '#333',
-  },
-  specialty: {
-    fontSize: 14,
-    color: '#555',
-    textAlign: 'center',
-    marginBottom: 8,
   },
   hospitalName: {
     fontSize: 14,

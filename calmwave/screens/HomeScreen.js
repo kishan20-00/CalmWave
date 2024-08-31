@@ -11,6 +11,7 @@ const HomeScreen = ({ navigation }) => {
   const [daysWithoutAlcohol, setDaysWithoutAlcohol] = useState(null);
   const [refreshing, setRefreshing] = useState(false);
   const [userEmail, setUserEmail] = useState('');
+  const [userName, setUserName] = useState('');
   const [profileImage, setProfileImage] = useState(null);
 
   const fetchUserData = async () => {
@@ -27,6 +28,7 @@ const HomeScreen = ({ navigation }) => {
 
       if (userDoc.exists()) {
         const userData = userDoc.data();
+        setUserName(userData.fullName);
         setUserEmail(userData.email.split('@')[0]); // Extract first part of email
         setProfileImage(userData.profileImage || defaultProfilePic); // Use default if no image
       }
@@ -137,7 +139,7 @@ const HomeScreen = ({ navigation }) => {
     >
       <View style={styles.headerContainer}>
         <View style={styles.headerOverlay}>
-          <Text style={styles.headerText}>Hey..{userEmail}.! 👋</Text>
+          <Text style={styles.headerText}>Hey..{userName}.! 👋</Text>
           <Image source={profileImage ? { uri: profileImage } : defaultProfilePic} style={styles.profileImage} />
         </View>
       </View>
@@ -253,6 +255,7 @@ const styles = StyleSheet.create({
   },
   chart: {
     marginVertical: 10,
+    marginRight:50,
   },
   infoContainer: {
     flexDirection: 'row',

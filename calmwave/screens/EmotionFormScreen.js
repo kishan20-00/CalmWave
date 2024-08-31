@@ -25,7 +25,7 @@ const EmotionFormScreen = ({ navigation }) => {
         const userDoc = await getDoc(userDocRef);
         if (userDoc.exists()) {
           const data = userDoc.data();
-          const username = user.email.split('@')[0];
+          const username = data.fullName;
           setUserData({
             username,
             age: data.age || '',

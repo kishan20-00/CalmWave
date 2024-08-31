@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
-import { createDrawerNavigator, DrawerContentScrollView, DrawerItemList } from '@react-navigation/drawer';
+import { createDrawerNavigator, DrawerContentScrollView, DrawerItemList, DrawerItem } from '@react-navigation/drawer';
 import { View, Text, Image, StyleSheet } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { auth, firestore } from './firebaseConfig';
 import { doc, getDoc } from 'firebase/firestore';
+import { signOut } from 'firebase/auth';
 
 import SignupScreen from './screens/SignupScreen';
 import HomeScreen from './screens/HomeScreen';
@@ -17,6 +18,8 @@ import ManageBookings from './screens/ManageBookings';
 import CommunityChat from './screens/CommunityChat';
 import EmotionFormScreen from './screens/EmotionFormScreen';
 import UserBookingsPage from './screens/UserBookingsPage';
+import BookingPage from './screens/BookingPage';
+import TherapistProfileScreen from './screens/TherapistProfile'
 
 const Stack = createStackNavigator();
 const Drawer = createDrawerNavigator();
@@ -38,9 +41,9 @@ function CustomDrawerContent(props) {
         const userDoc = await getDoc(userDocRef);
         if (userDoc.exists()) {
           const data = userDoc.data();
-          const emailUsername = data.email.split('@')[0];
+          const userName = data.fullName;
           setUserData({
-            name: emailUsername || '',
+            name: userName || '',
             email: data.email || '',
             profileImage: data.profileImage || null,
           });
@@ -51,6 +54,15 @@ function CustomDrawerContent(props) {
     fetchUserData();
   }, []);
 
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      props.navigation.navigate('Login');
+    } catch (error) {
+      console.error('Error signing out: ', error);
+    }
+  };
+
   return (
     <DrawerContentScrollView {...props}>
       <View style={styles.drawerHeader}>
@@ -59,11 +71,18 @@ function CustomDrawerContent(props) {
             source={userData.profileImage ? { uri: userData.profileImage } : defaultProfileImage}
             style={styles.profileImage}
           />
-          <Text style={styles.userName}>@{userData.name}</Text>
+          <Text style={styles.userName}>{userData.name}</Text>
           <Text style={styles.userEmail}>{userData.email}</Text>
         </View>
       </View>
       <DrawerItemList {...props} />
+      <DrawerItem
+        label="Logout"
+        icon={({ color, size }) => (
+          <Icon name="logout" color={color} size={size} />
+        )}
+        onPress={handleLogout}
+      />
     </DrawerContentScrollView>
   );
 }
@@ -80,7 +99,7 @@ function MyDrawer() {
       initialRouteName="MainHome"
     >
       <Drawer.Screen
-        name="MainHome"
+        name="Main Home"
         component={HomeScreen}
         options={{
           drawerIcon: ({ color, size }) => (
@@ -89,7 +108,7 @@ function MyDrawer() {
         }}
       />
       <Drawer.Screen
-        name="YourProfile"
+        name="Your Profile"
         component={ProfileScreen}
         options={{
           drawerIcon: ({ color, size }) => (
@@ -98,16 +117,7 @@ function MyDrawer() {
         }}
       />
       <Drawer.Screen
-        name="TherapistHome"
-        component={TherapistHomeScreen}
-        options={{
-          drawerIcon: ({ color, size }) => (
-            <Icon name="doctor" color={color} size={size} />
-          ),
-        }}
-      />
-      <Drawer.Screen
-        name="TherapistList"
+        name="Therapist List"
         component={TherapistListScreen}
         options={{
           drawerIcon: ({ color, size }) => (
@@ -116,16 +126,7 @@ function MyDrawer() {
         }}
       />
       <Drawer.Screen
-        name="ManageBookings"
-        component={ManageBookings}
-        options={{
-          drawerIcon: ({ color, size }) => (
-            <Icon name="calendar-check" color={color} size={size} />
-          ),
-        }}
-      />
-      <Drawer.Screen
-        name="CommunityChat"
+        name="Community Chat"
         component={CommunityChat}
         options={{
           drawerIcon: ({ color, size }) => (
@@ -134,7 +135,7 @@ function MyDrawer() {
         }}
       />
       <Drawer.Screen
-        name="EmotionForm"
+        name="Emotion Form"
         component={EmotionFormScreen}
         options={{
           drawerIcon: ({ color, size }) => (
@@ -143,7 +144,7 @@ function MyDrawer() {
         }}
       />
       <Drawer.Screen
-        name="UserBookings"
+        name="User Bookings"
         component={UserBookingsPage}
         options={{
           drawerIcon: ({ color, size }) => (
@@ -175,6 +176,26 @@ export default function App() {
         <Stack.Screen
           name="Home"
           component={MyDrawer}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="ManageBookings"
+          component={ManageBookings}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="TherapistHome"
+          component={TherapistHomeScreen}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="Booking"
+          component={BookingPage}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="TherapistProfile"
+          component={TherapistProfileScreen}
           options={{ headerShown: false }}
         />
       </Stack.Navigator>
