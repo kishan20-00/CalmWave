@@ -25,40 +25,24 @@ const TherapistListScreen = ({ navigation }) => {
     therapist.fullName.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const renderItem = ({ item }) => {
-    const profileImage = item.profileImage 
-      ? { uri: item.profileImage } 
-      : require('../assets/thdefauldimg.jpg'); // Use a default image if profileImage is not available
-
-    return (
-      <TouchableOpacity
-        style={styles.card}
-        onPress={() => navigation.navigate('Booking', { therapist: item })}
-      >
-        <Image source={profileImage} style={styles.image} />
-        <View style={styles.infoContainer}>
-          <Text style={styles.name}>{item.fullName}</Text>
-          <Text style={styles.specialty}>{item.specialty || 'Specialty Not Available'}</Text>
-          <Text style={styles.hospitalName}>{item.hospitalName}</Text>
-          <Text style={styles.experience}>{item.experience ? `${item.experience} years of experience` : 'Experience Not Available'}</Text>
-          <View style={styles.ratingContainer}>
-            <Text style={styles.rating}>{item.rating || 'N/A'}</Text>
-            <Image source={require('../assets/star.png')} style={styles.starIcon} />
-          </View>
-        </View>
-      </TouchableOpacity>
-    );
-  };
+  const renderItem = ({ item }) => (
+    <TouchableOpacity
+      style={styles.card}
+      onPress={() => navigation.navigate('Booking', { therapist: item })}
+    >
+      <Image source={{ uri: item.profileImage }} style={styles.image} />
+      <Text style={styles.name}>{item.fullName}</Text>
+      <Text>{item.hospitalName}</Text>
+      <Text>{item.experience} years of experience</Text>
+    </TouchableOpacity>
+  );
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      {/* <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-        <Text style={styles.backButtonText}>{"<"}</Text>
-      </TouchableOpacity> */}
-      <Text style={styles.heading}>THERAPY SCHEDULING</Text>
+      <Text style={styles.heading}>Therapists</Text>
       <TextInput
         style={styles.searchBar}
-        placeholder="Search Doctor"
+        placeholder="Search by name"
         value={searchQuery}
         onChangeText={setSearchQuery}
       />
@@ -71,9 +55,6 @@ const TherapistListScreen = ({ navigation }) => {
         contentContainerStyle={styles.list}
         scrollEnabled={false} // Disable FlatList's internal scroll to let ScrollView handle it
       />
-      <TouchableOpacity onPress={() => navigation.navigate('AllTherapists')}>
-        <Text style={styles.seeAll}>See all</Text>
-      </TouchableOpacity>
     </ScrollView>
   );
 };
@@ -81,114 +62,48 @@ const TherapistListScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
-    padding: 15,
-    backgroundColor: '#b9e0eb',
-  },
-  backButton: {
-    marginTop: 20,
-    marginBottom: 10,
     padding: 10,
-    backgroundColor: '#007BFF',
-    borderRadius: 5,
-    alignItems: 'center',
-    justifyContent: 'center',
-    width: 50,
-  },
-  backButtonText: {
-    fontSize: 20,
-    color: '#FFF',
-    fontWeight: 'bold',
+    backgroundColor: '#fff',
   },
   heading: {
-    fontSize: 28,
+    fontSize: 24,
     fontWeight: 'bold',
     textAlign: 'center',
-    marginVertical: 20,
-    color: '#333',
+    marginTop: 40,  // Adjust this value to lower the heading further
+    marginBottom: 20,
   },
   searchBar: {
-    height: 45,
-    borderColor: '#ddd',
+    height: 40,
+    borderColor: '#ccc',
     borderWidth: 1,
-    borderRadius: 8,
-    paddingHorizontal: 15,
+    borderRadius: 5,
+    paddingHorizontal: 10,
     marginBottom: 20,
-    backgroundColor: '#FFF',
   },
   row: {
     justifyContent: 'space-between',
-    marginBottom: 15,
+    marginBottom: 10,
   },
   list: {
     justifyContent: 'center',
   },
   card: {
-    backgroundColor: '#ffffff',
-    padding: 15,
-    borderRadius: 15,
+    backgroundColor: '#f8f8f8',
+    padding: 20,
+    borderRadius: 10,
     width: Dimensions.get('window').width / 2 - 20, // Two cards per row
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    shadowOffset: { width: 0, height: 3 },
-    elevation: 3,
   },
   image: {
-    width: 90,
-    height: 90,
-    borderRadius: 45,
-    marginBottom: 15,
-  },
-  infoContainer: {
-    alignItems: 'center',
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    marginBottom: 10,
   },
   name: {
     fontSize: 18,
     fontWeight: 'bold',
     textAlign: 'center',
-    marginBottom: 5,
-    color: '#333',
-  },
-  specialty: {
-    fontSize: 14,
-    color: '#555',
-    textAlign: 'center',
-    marginBottom: 8,
-  },
-  hospitalName: {
-    fontSize: 14,
-    color: '#777',
-    textAlign: 'center',
-    marginBottom: 8,
-  },
-  experience: {
-    fontSize: 13,
-    color: '#999',
-    textAlign: 'center',
-    marginBottom: 8,
-  },
-  ratingContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 5,
-  },
-  rating: {
-    fontSize: 14,
-    fontWeight: 'bold',
-    color: '#333',
-  },
-  starIcon: {
-    width: 16,
-    height: 16,
-    marginLeft: 5,
-  },
-  seeAll: {
-    textAlign: 'right',
-    fontSize: 16,
-    color: '#168269',
-    marginTop: 20,
-    padding: 15,
   },
 });
 
