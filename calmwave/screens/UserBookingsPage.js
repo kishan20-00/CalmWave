@@ -68,8 +68,8 @@ const UserBookingsPage = ({ navigation }) => {
   const renderBookingItem = ({ item }) => (
     <View style={styles.bookingContainer}>
       <Text style={styles.therapistName}>Therapist: {item.therapistFullName}</Text>
-      <Text style={styles.bookingDetail}>Appointment Date: {item.appointmentDate}</Text>
-      <Text style={styles.bookingDetail}>Status: {item.status}</Text>
+      <Text>Appointment Date: {item.appointmentDate}</Text>
+      <Text>Status: {item.status}</Text>
       {item.feedbackProvided ? (
         <Text style={styles.feedbackText}>Feedback: {item.feedback} (Rating: {item.rating} ⭐)</Text>
       ) : (
@@ -87,7 +87,7 @@ const UserBookingsPage = ({ navigation }) => {
         data={bookings}
         keyExtractor={(item) => item.id}
         renderItem={renderBookingItem}
-        ListEmptyComponent={<Text style={styles.emptyText}>No bookings found.</Text>}
+        ListEmptyComponent={<Text>No bookings found.</Text>}
       />
 
       {/* Feedback Modal */}
@@ -117,9 +117,7 @@ const UserBookingsPage = ({ navigation }) => {
               value={feedback}
               onChangeText={setFeedback}
             />
-            <TouchableOpacity style={styles.submitButton} onPress={handleFeedbackSubmit}>
-              <Text style={styles.submitButtonText}>Submit</Text>
-            </TouchableOpacity>
+            <Button title="Submit" onPress={handleFeedbackSubmit} />
             <TouchableOpacity onPress={() => setFeedbackModalVisible(false)}>
               <Text style={styles.cancelText}>Cancel</Text>
             </TouchableOpacity>
@@ -134,41 +132,21 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
-    backgroundColor: '#B0D0D3',
   },
   bookingContainer: {
     padding: 15,
-    marginBottom: 15,
-    backgroundColor: '#FFFFFF',
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: '#DDDDDD',
-    shadowColor: '#000000',
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.2,
-    shadowRadius: 6,
-    elevation: 4,
+    borderBottomWidth: 1,
+    borderBottomColor: '#ccc',
+    marginBottom: 10,
   },
   therapistName: {
     fontSize: 18,
     fontWeight: 'bold',
-    marginBottom: 5,
-  },
-  bookingDetail: {
-    fontSize: 16,
-    color: '#555555',
-    marginBottom: 5,
   },
   feedbackText: {
-    marginTop: 10,
+    marginTop: 5,
     fontStyle: 'italic',
     color: '#555',
-  },
-  emptyText: {
-    fontSize: 16,
-    color: '#777',
-    textAlign: 'center',
-    marginTop: 20,
   },
   modalContainer: {
     flex: 1,
@@ -190,29 +168,15 @@ const styles = StyleSheet.create({
   },
   feedbackInput: {
     height: 80,
-    borderColor: '#B0BEC5',
+    borderColor: 'gray',
     borderWidth: 1,
     width: '100%',
     padding: 10,
     marginBottom: 10,
-    borderRadius: 5,
-  },
-  submitButton: {
-    backgroundColor: '#1E88E5',
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 5,
-    marginBottom: 10,
-    alignItems: 'center',
-  },
-  submitButtonText: {
-    color: '#FFFFFF',
-    fontWeight: 'bold',
   },
   cancelText: {
     marginTop: 10,
     color: 'red',
-    fontWeight: 'bold',
   },
 });
 
