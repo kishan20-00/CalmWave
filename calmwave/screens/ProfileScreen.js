@@ -62,6 +62,13 @@ const ProfileScreen = () => {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Profile</Text>
+      <TouchableOpacity onPress={pickImage} style={styles.imagePicker}>
+        {profileImage ? (
+          <Image source={{ uri: profileImage }} style={styles.image} />
+        ) : (
+          <Text style={styles.imagePlaceholder}>Profile Image +</Text>
+        )}
+      </TouchableOpacity>
       <TextInput
         style={styles.input}
         placeholder="Full Name"
@@ -88,14 +95,9 @@ const ProfileScreen = () => {
         onChangeText={setContactNumber}
         keyboardType="phone-pad"
       />
-      <TouchableOpacity onPress={pickImage} style={styles.imagePicker}>
-        {profileImage ? (
-          <Image source={{ uri: profileImage }} style={styles.image} />
-        ) : (
-          <Text style={styles.imagePlaceholder}>Pick a Profile Image</Text>
-        )}
+      <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
+        <Text style={styles.saveButtonText}>Save</Text>
       </TouchableOpacity>
-      <Button title="Save" onPress={handleSave} />
     </View>
   );
 };
@@ -104,35 +106,68 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
+    backgroundColor: '#B0D0D3', // Background color
     justifyContent: 'center',
+    alignItems: 'center',
   },
   title: {
-    fontSize: 24,
+    fontSize: 28,
     marginBottom: 20,
-    textAlign: 'center',
+    fontWeight: 'bold',
+    color: '#003D4D', // Darker color for contrast
   },
   input: {
     height: 50,
-    borderColor: '#ccc',
+    borderColor: '#007BFF',
     borderWidth: 1,
-    marginBottom: 20,
-    paddingHorizontal: 10,
+    borderRadius: 8,
+    marginBottom: 15,
+    paddingHorizontal: 15,
+    backgroundColor: '#FFFFFF',
+    width: '100%',
   },
   imagePicker: {
     height: 150,
     width: 150,
+    borderRadius: 75,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#eee',
+    backgroundColor: '#FFFFFF',
+    borderWidth: 3,
+    borderColor: '#28ad8e',
     marginBottom: 20,
+    overflow: 'hidden',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 6,
+    elevation: 5,
   },
   image: {
-    width: 150,
-    height: 150,
+    width: '100%',
+    height: '100%',
   },
   imagePlaceholder: {
-    color: '#aaa',
+    color: '#28ad8e',
     textAlign: 'center',
+    fontSize: 16,
+  },
+  saveButton: {
+    backgroundColor: '#2890ad',
+    paddingVertical: 15,
+    paddingHorizontal: 30,
+    borderRadius: 10,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 6,
+    elevation: 5,
+  },
+  saveButtonText: {
+    fontSize: 18,
+    color: '#FFFFFF',
+    fontWeight: 'bold',
   },
 });
 
