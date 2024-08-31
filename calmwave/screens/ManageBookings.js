@@ -56,10 +56,10 @@ const ManageBookings = () => {
 
   const renderBookingItem = ({ item }) => (
     <View style={styles.bookingContainer}>
-      <Text>{`Appointment with ${item.therapistFullName}`}</Text>
-      <Text>{`Date: ${item.appointmentDate}`}</Text>
-      <Text>{`User: ${item.userFullName}`}</Text>
-      <Text>{`Contact: ${item.userContact}`}</Text>
+      <Text style={styles.bookingTitle}>{`Appointment with ${item.therapistFullName}`}</Text>
+      <Text style={styles.bookingDetail}>{`Date: ${item.appointmentDate}`}</Text>
+      <Text style={styles.bookingDetail}>{`User: ${item.userFullName}`}</Text>
+      <Text style={styles.bookingDetail}>{`Contact: ${item.userContact}`}</Text>
       <DropDownPicker
         open={statusPickerOpen[item.id] || false}
         value={selectedStatus[item.id] || item.status}
@@ -81,7 +81,7 @@ const ManageBookings = () => {
   );
 
   if (loading) {
-    return <ActivityIndicator size="large" color="#0000ff" />;
+    return <ActivityIndicator size="large" color="#007BFF" style={styles.loader} />;
   }
 
   return (
@@ -100,32 +100,52 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
+    backgroundColor: '#B0D0D3',
   },
   header: {
-    fontSize: 24,
+    fontSize: 26,
     fontWeight: 'bold',
+    color: '#004D40',
     marginBottom: 20,
-    marginTop: 90,
   },
   bookingContainer: {
-    marginBottom: 20,
-    padding: 10,
+    padding: 15,
+    marginBottom: 15,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 10,
     borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 5,
-    zIndex: 0, // Default zIndex for booking items
+    borderColor: '#DDDDDD',
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.2,
+    shadowRadius: 6,
+    elevation: 4,
+  },
+  bookingTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 5,
+  },
+  bookingDetail: {
+    fontSize: 16,
+    color: '#555555',
+    marginBottom: 5,
   },
   dropdown: {
-    borderColor: '#ccc',
+    marginTop: 10,
+    borderColor: '#B0BEC5',
     borderWidth: 1,
-    height: 50,
-    backgroundColor: '#fafafa', // Solid background color
-    zIndex: 2000, // Ensures dropdown is above other elements
+    height: 40,
+    backgroundColor: '#FAFAFA',
   },
   dropdownContainer: {
-    borderColor: '#ccc',
-    backgroundColor: '#fafafa', // Solid background color for the dropdown container
-    zIndex: 2000, // Ensures dropdown container is on top of other elements
+    borderColor: '#B0BEC5',
+    backgroundColor: '#FAFAFA',
+  },
+  loader: {
+    flex: 1,
+    justifyContent: 'center',
+    backgroundColor: '#E8F5E9',
   },
 });
 
