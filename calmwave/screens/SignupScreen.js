@@ -88,6 +88,16 @@ const SignupScreen = ({ navigation }) => {
           keyboardType="numeric"
           placeholderTextColor="#888"
         />
+        <DropDownPicker
+          open={open}
+          value={role}
+          items={items}
+          setOpen={setOpen}
+          setValue={setRole}
+          setItems={setItems}
+          style={styles.dropdown}
+          dropDownContainerStyle={styles.dropdownContainer}
+        />
         <TextInput
           style={styles.input}
           placeholder="Password"
@@ -172,6 +182,15 @@ const styles = StyleSheet.create({
     color: '#34495E',
     fontSize: 16,
     marginVertical: 10,
+  },
+  dropdown: {
+    marginBottom: 20,
+    borderColor: '#ccc',
+    borderWidth: 1,
+    height: 50,
+  },
+  dropdownContainer: {
+    borderColor: '#ccc',
   },
   signinButton: {
     borderColor: '#227093',
