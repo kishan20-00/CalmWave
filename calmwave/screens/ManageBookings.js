@@ -60,25 +60,29 @@ const ManageBookings = () => {
       <Text style={styles.bookingDetail}>{`Date: ${item.appointmentDate}`}</Text>
       <Text style={styles.bookingDetail}>{`User: ${item.userFullName}`}</Text>
       <Text style={styles.bookingDetail}>{`Contact: ${item.userContact}`}</Text>
-      <DropDownPicker
-        open={statusPickerOpen[item.id] || false}
-        value={selectedStatus[item.id] || item.status}
-        items={statusOptions}
-        setOpen={(open) => setStatusPickerOpen({ ...statusPickerOpen, [item.id]: open })}
-        setValue={(callback) => {
-          const value = callback(selectedStatus[item.id] || item.status);
-          setSelectedStatus({ ...selectedStatus, [item.id]: value });
-          handleStatusChange(item.id, value);
-        }}
-        setItems={() => {}}
-        style={styles.dropdown}
-        dropDownContainerStyle={styles.dropdownContainer}
-        placeholder="Select status"
-        zIndex={statusPickerOpen[item.id] ? 2000 : 1} // Ensures dropdown is above other elements
-        zIndexInverse={statusPickerOpen[item.id] ? 2000 : 1} // Ensures dropdown is above other elements
-      />
+      
+      {/* Wrap the DropDownPicker with a View */}
+      <View style={{ zIndex: statusPickerOpen[item.id] ? 2000 : 0, position: 'relative' }}>
+        <DropDownPicker
+          open={statusPickerOpen[item.id] || false}
+          value={selectedStatus[item.id] || item.status}
+          items={statusOptions}
+          setOpen={(open) => setStatusPickerOpen({ ...statusPickerOpen, [item.id]: open })}
+          setValue={(callback) => {
+            const value = callback(selectedStatus[item.id] || item.status);
+            setSelectedStatus({ ...selectedStatus, [item.id]: value });
+            handleStatusChange(item.id, value);
+          }}
+          setItems={() => {}}
+          style={styles.dropdown}
+          dropDownContainerStyle={styles.dropdownContainer}
+          placeholder="Select status"
+        />
+      </View>
     </View>
   );
+  
+  
 
   if (loading) {
     return <ActivityIndicator size="large" color="#007BFF" style={styles.loader} />;
@@ -88,10 +92,14 @@ const ManageBookings = () => {
     <View style={styles.container}>
       <Text style={styles.header}>Manage Bookings</Text>
       <FlatList
-        data={bookings}
-        keyExtractor={(item) => item.id}
-        renderItem={renderBookingItem}
-      />
+  data={bookings}
+  keyExtractor={(item) => item.id}
+  renderItem={renderBookingItem}
+  style={{ flex: 1 }}
+  contentContainerStyle={{ paddingBottom: 20 }}
+  scrollEnabled={!Object.values(statusPickerOpen).includes(true)} // Disable scrolling when dropdown is open
+/>
+
     </View>
   );
 };
@@ -101,6 +109,7 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 20,
     backgroundColor: '#B0D0D3',
+    marginTop: 50,
   },
   header: {
     fontSize: 26,
@@ -148,5 +157,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#E8F5E9',
   },
 });
+
+
 
 export default ManageBookings;

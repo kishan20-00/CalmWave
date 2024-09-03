@@ -12,8 +12,6 @@ const TherapistProfileScreen = () => {
   const [contactNumber, setContactNumber] = useState('');
   const [experience, setExperience] = useState('');
   const [hospitalName, setHospitalName] = useState('');
-  const [patientCount, setPatientCount] = useState(0);
-  const [reviews, setReviews] = useState([]);
 
   useEffect(() => {
     const fetchUserProfile = async () => {
@@ -30,8 +28,6 @@ const TherapistProfileScreen = () => {
           setContactNumber(userData.contactNumber || '');
           setExperience(userData.experience || '');
           setHospitalName(userData.hospitalName || '');
-          setPatientCount(userData.patientCount || 0);
-          setReviews(userData.reviews || []);
         }
       }
     };
@@ -121,12 +117,6 @@ const TherapistProfileScreen = () => {
           value={hospitalName}
           onChangeText={setHospitalName}
         />
-
-        <Text style={styles.label}>Patient Count: {patientCount}</Text>
-        <Text style={styles.label}>Reviews:</Text>
-        {reviews.map((review, index) => (
-          <Text key={index} style={styles.reviewText}>{review}</Text>
-        ))}
 
         <Button title="Update Profile" onPress={handleUpdateProfile} />
       </View>

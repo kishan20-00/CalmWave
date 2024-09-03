@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, Dimensions, RefreshControl, Image, TouchableOpacity } from 'react-native';
-import { collection, query, orderBy, limit, onSnapshot, where, doc, getDoc } from 'firebase/firestore';
+import { collection, query, orderBy, limit, onSnapshot, where, doc, getDoc, getDocs } from 'firebase/firestore';
 import { firestore, auth } from '../firebaseConfig';
 import { LineChart } from 'react-native-chart-kit';
 import moment from 'moment';
@@ -11,7 +11,10 @@ const HomeScreen = ({ navigation }) => {
   const [daysWithoutAlcohol, setDaysWithoutAlcohol] = useState(null);
   const [refreshing, setRefreshing] = useState(false);
   const [userEmail, setUserEmail] = useState('');
+  const [userName, setUserName] = useState('');
   const [profileImage, setProfileImage] = useState(null);
+  const [randomArticle, setRandomArticle] = useState(null);
+
 
   const fetchUserData = async () => {
     try {
@@ -27,6 +30,7 @@ const HomeScreen = ({ navigation }) => {
 
       if (userDoc.exists()) {
         const userData = userDoc.data();
+        setUserName(userData.fullName);
         setUserEmail(userData.email.split('@')[0]); // Extract first part of email
         setProfileImage(userData.profileImage || defaultProfilePic); // Use default if no image
       }
@@ -34,6 +38,25 @@ const HomeScreen = ({ navigation }) => {
       console.error('Failed to fetch user data:', error);
     }
   };
+
+  useEffect(() => {
+    const fetchRandomArticle = async () => {
+      try {
+        const articlesCollection = collection(firestore, 'articles');
+        const articleDocs = await getDocs(articlesCollection);
+        const articles = articleDocs.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        
+        // Select a random article
+        const randomIndex = Math.floor(Math.random() * articles.length);
+        setRandomArticle(articles[randomIndex]);
+      } catch (error) {
+        console.error('Error fetching articles:', error);
+      }
+    };
+  
+    fetchRandomArticle();
+  }, []);
+  
 
   const fetchEmotions = async () => {
     try {
@@ -98,6 +121,12 @@ const HomeScreen = ({ navigation }) => {
     fetchEmotions().finally(() => setRefreshing(false));
   };
 
+  const truncateContent = (content, maxLength = 50) => {
+    if (content.length <= maxLength) return content;
+    return `${content.substring(0, maxLength)}...`;
+  };
+  
+
   const emotionValueMap = {
     worst: 5,
     worse: 10,
@@ -137,7 +166,7 @@ const HomeScreen = ({ navigation }) => {
     >
       <View style={styles.headerContainer}>
         <View style={styles.headerOverlay}>
-          <Text style={styles.headerText}>Hey..{userEmail}.! 👋</Text>
+          <Text style={styles.headerText}>Hey..{userName}.! 👋</Text>
           <Image source={profileImage ? { uri: profileImage } : defaultProfilePic} style={styles.profileImage} />
         </View>
       </View>
@@ -191,15 +220,19 @@ const HomeScreen = ({ navigation }) => {
 
       <View style={styles.articleContainer}>
         <Text style={styles.articleTitle}>Today's Article</Text>
-        <TouchableOpacity style={styles.articleContent}>
-          <View style={styles.articleTextContainer}>
-            <Text style={styles.articleHeadline}>Handling Emotions!!!</Text>
-            <Text style={styles.articleDescription}>
-              Emotions are an integral part of our daily lives, influencing our thoughts, behaviors, and interactions.
-            </Text>
-          </View>
-          <Image source={require('../assets/images.jpg')} style={styles.articleImage} />
-        </TouchableOpacity>
+        {randomArticle ? (
+    <>
+      <Text style={styles.articleTitle}>{randomArticle.title}</Text>
+      <Text style={styles.articleContent}>
+      {randomArticle.imageUrl && (
+      <Image source={{ uri: randomArticle.imageUrl }} style={styles.articleImage} />
+    )}
+        {truncateContent(randomArticle.content, 50)}
+      </Text>
+    </>
+  ) : (
+    <Text>Loading...</Text>
+  )}
       </View>
     </ScrollView>
   );
@@ -253,6 +286,7 @@ const styles = StyleSheet.create({
   },
   chart: {
     marginVertical: 10,
+    marginRight:50,
   },
   infoContainer: {
     flexDirection: 'row',

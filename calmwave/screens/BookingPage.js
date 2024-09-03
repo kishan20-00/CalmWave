@@ -68,14 +68,14 @@ const BookingPage = ({ route, navigation }) => {
   }, [therapist.email]);
 
   const handleDateChange = (event, selectedDate) => {
-    setDatePickerVisible(Platform.OS === 'ios');
+    setDatePickerVisible(false);
     if (event.type === 'set') {
       setSelectedDate(selectedDate || new Date());
     }
   };
 
   const handleTimeChange = (event, selectedTime) => {
-    setTimePickerVisible(Platform.OS === 'ios');
+    setTimePickerVisible(false);
     if (event.type === 'set') {
       setSelectedTime(selectedTime || new Date());
     }
@@ -111,11 +111,6 @@ const BookingPage = ({ route, navigation }) => {
         style={styles.profileImage}
       />
       <Text style={styles.name}>{therapist.fullName}</Text>
-      <Text>{therapist.hospitalName}</Text>
-      <Text>{therapist.experience} years of experience</Text>
-      <Text>Contact: {therapist.contactNumber}</Text>
-      
-      {/* Rating and Reply Count */}
       <View style={styles.ratingContainer}>
         <AirbnbRating
           count={5}
@@ -125,9 +120,14 @@ const BookingPage = ({ route, navigation }) => {
           isDisabled={true}
           showRating={false} // Hide the default review text
         />
-        <Text style={styles.replyCount}>Replies: {replyCount}</Text>
       </View>
-
+      <Text style={styles.heading}>{therapist.hospitalName}</Text>
+      <Text>{therapist.experience} years of experience</Text>
+      <Text>Contact: {therapist.contactNumber}</Text>
+      
+      {/* Rating and Reply Count */}
+      <Text style={styles.replyCount}>Replies: {replyCount}</Text>
+      
       <Button title="Select Date" onPress={() => setDatePickerVisible(true)} />
       <Button title="Select Time" onPress={() => setTimePickerVisible(true)} />
       
@@ -161,13 +161,14 @@ const BookingPage = ({ route, navigation }) => {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    padding: 20,
+    flexGrow: 1,
+    padding: 15,
+    backgroundColor: '#b9e0eb',
   },
   profileImage: {
-    width: 150,
-    height: 150,
-    borderRadius: 75,
+    width: 400,
+    height: 200,
+    borderRadius: 40,
     marginBottom: 20,
     marginTop: 70,
     alignSelf: 'center',
@@ -176,7 +177,13 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 20,
-    textAlign: 'center',
+    textAlign: 'left',
+  },
+  heading: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 0,
+    textAlign: 'left',
   },
   selectedDate: {
     fontSize: 16,
@@ -189,6 +196,7 @@ const styles = StyleSheet.create({
   ratingContainer: {
     alignItems: 'center',
     marginVertical: 20,
+    marginLeft: 250,
   },
   replyCount: {
     fontSize: 16,

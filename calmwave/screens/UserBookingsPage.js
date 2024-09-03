@@ -1,11 +1,13 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Button, FlatList, Alert, Modal, TextInput, TouchableOpacity } from 'react-native';
+import React, { useState, useCallback } from 'react';
+import { View, Text, StyleSheet, Button, FlatList, Alert, Modal, TextInput, TouchableOpacity, RefreshControl } from 'react-native';
 import { collection, query, where, getDocs, updateDoc, doc } from 'firebase/firestore';
 import { firestore, auth } from '../firebaseConfig';
 import { Rating } from 'react-native-ratings';
+import { useFocusEffect } from '@react-navigation/native';
 
 const UserBookingsPage = ({ navigation }) => {
   const [bookings, setBookings] = useState([]);
+  const [refreshing, setRefreshing] = useState(false);
   const [feedbackModalVisible, setFeedbackModalVisible] = useState(false);
   const [selectedBooking, setSelectedBooking] = useState(null);
   const [rating, setRating] = useState(0);
@@ -27,9 +29,12 @@ const UserBookingsPage = ({ navigation }) => {
     }
   };
 
-  useEffect(() => {
-    fetchBookings();
-  }, []);
+  // Use focus effect to refetch bookings when the page is navigated to
+  useFocusEffect(
+    useCallback(() => {
+      fetchBookings();
+    }, [])
+  );
 
   // Handle feedback submission
   const handleFeedbackSubmit = async () => {
@@ -64,6 +69,13 @@ const UserBookingsPage = ({ navigation }) => {
     }
   };
 
+  // Handle refresh action
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    await fetchBookings();
+    setRefreshing(false);
+  };
+
   // Render each booking item
   const renderBookingItem = ({ item }) => (
     <View style={styles.bookingContainer}>
@@ -88,6 +100,12 @@ const UserBookingsPage = ({ navigation }) => {
         keyExtractor={(item) => item.id}
         renderItem={renderBookingItem}
         ListEmptyComponent={<Text style={styles.emptyText}>No bookings found.</Text>}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={handleRefresh}
+          />
+        }
       />
 
       {/* Feedback Modal */}
