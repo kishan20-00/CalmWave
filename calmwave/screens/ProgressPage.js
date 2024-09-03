@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, ScrollView, ActivityIndicator } from 'react-nat
 import { Calendar } from 'react-native-calendars';
 import { firestore, auth } from '../firebaseConfig';
 import { collection, getDocs, query, where } from 'firebase/firestore';
+import moment from 'moment';  // Importing moment
 
 const ProgressPage = () => {
   const [bookingData, setBookingData] = useState([]);
@@ -18,7 +19,14 @@ const ProgressPage = () => {
           const querySnapshot = await getDocs(q);
           const bookings = [];
           querySnapshot.forEach((doc) => {
-            bookings.push(doc.data());
+            const data = doc.data();
+            // Use moment to parse appointmentDate
+            const parsedDate = moment(data.appointmentDate, 'ddd MMM DD YYYY HH:mm:ss', true);
+            if (!parsedDate.isValid()) {
+              console.warn('Invalid or missing appointmentDate:', data);
+            } else {
+              bookings.push({ ...data, appointmentDate: parsedDate.toISOString() });
+            }
           });
           setBookingData(bookings);
         }
@@ -32,21 +40,18 @@ const ProgressPage = () => {
     fetchUserBookings();
   }, []);
 
-  // Function to format dates into "YYYY-MM-DD" format for marking
   const formatDate = (dateString) => {
-    const date = new Date(dateString);
-    return date.toISOString().split('T')[0];
+    const date = moment(dateString); // Use moment to format date
+    return date.format('YYYY-MM-DD');
   };
 
-  // Prepare marked dates data
   const getMarkedDates = (dates) => {
     return dates.reduce((acc, date) => {
-      acc[formatDate(date)] = { marked: true, dotColor: 'blue' };
+      acc[formatDate(date)] = { selected: true, marked: true, dotColor: 'blue' };
       return acc;
     }, {});
   };
 
-  // Group bookings by therapist and prepare data for the calendar
   const therapistBookings = bookingData.reduce((acc, booking) => {
     const { therapistFullName, appointmentDate } = booking;
     const date = formatDate(appointmentDate);
@@ -58,8 +63,7 @@ const ProgressPage = () => {
     return acc;
   }, {});
 
-  // Get today's date in "YYYY-MM-DD" format
-  const today = new Date().toISOString().split('T')[0];
+  const today = moment().format('YYYY-MM-DD');
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
@@ -74,7 +78,7 @@ const ProgressPage = () => {
                 Sessions: {therapistBookings[therapist].count}
               </Text>
               <Calendar
-                current={today} // Set current date as a string
+                current={today}
                 markedDates={getMarkedDates(therapistBookings[therapist].dates)}
                 style={styles.calendar}
               />
