@@ -20,6 +20,10 @@ import EmotionFormScreen from './screens/EmotionFormScreen';
 import UserBookingsPage from './screens/UserBookingsPage';
 import BookingPage from './screens/BookingPage';
 import TherapistProfileScreen from './screens/TherapistProfile'
+import ResourcePage from './screens/AddResource';
+import ArticleListPage from './screens/ArticleList';
+import ArticleDetailPage from './screens/ArticleDetails';
+import ProgressPage from './screens/ProgressPage';
 
 const Stack = createStackNavigator();
 const Drawer = createDrawerNavigator();
@@ -152,6 +156,33 @@ function MyDrawer() {
           ),
         }}
       />
+      <Drawer.Screen
+        name="Add Resource"
+        component={ResourcePage}
+        options={{
+          drawerIcon: ({ color, size }) => (
+            <Icon name="read" color={color} size={size} />
+          ),
+        }}
+      />
+      <Drawer.Screen
+        name="Resources"
+        component={ArticleListPage}
+        options={{
+          drawerIcon: ({ color, size }) => (
+            <Icon name="printer" color={color} size={size} />
+          ),
+        }}
+      />
+      <Drawer.Screen
+        name="Progress"
+        component={ProgressPage}
+        options={{
+          drawerIcon: ({ color, size }) => (
+            <Icon name="progress-check" color={color} size={size} />
+          ),
+        }}
+      />
     </Drawer.Navigator>
   );
 }
@@ -196,6 +227,11 @@ export default function App() {
         <Stack.Screen
           name="TherapistProfile"
           component={TherapistProfileScreen}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="ArticleDetail"
+          component={ArticleDetailPage}
           options={{ headerShown: false }}
         />
       </Stack.Navigator>

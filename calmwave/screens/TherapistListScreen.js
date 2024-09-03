@@ -15,38 +15,44 @@ const TherapistListScreen = ({ navigation }) => {
         const therapistsCollection = collection(firestore, 'users');
         const therapistSnapshot = await getDocs(therapistsCollection);
         const therapistList = therapistSnapshot.docs
-          .map(doc => ({ id: doc.id, ...doc.data() }))
-          .filter(doc => doc.role === 'therapist'); // Filter only therapists
-
+          .map((doc) => ({ id: doc.id, ...doc.data() }))
+          .filter((doc) => doc.role === 'therapist'); // Filter only therapists
+  
         // Fetching bookings from 'booking' collection
         const bookingsCollection = collection(firestore, 'booking');
         const bookingSnapshot = await getDocs(bookingsCollection);
-        const bookingsList = bookingSnapshot.docs.map(doc => doc.data());
-
+        const bookingsList = bookingSnapshot.docs.map((doc) => doc.data());
+  
         // Map therapists to their ratings
-        const therapistsWithRatings = therapistList.map(therapist => {
+        const therapistsWithRatings = therapistList.map((therapist) => {
           // Filter bookings related to this therapist
           const therapistBookings = bookingsList.filter(
-            booking => booking.therapistEmail === therapist.email
+            (booking) => booking.therapistEmail === therapist.email
           );
-
+  
           // Calculate mean rating if there are any ratings available
           const meanRating =
             therapistBookings.length > 0
-              ? therapistBookings.reduce((sum, booking) => sum + (booking.rating || 0), 0) / therapistBookings.length
+              ? (
+                  therapistBookings.reduce(
+                    (sum, booking) => sum + (booking.rating || 0),
+                    0
+                  ) / therapistBookings.length
+                ).toFixed(1) // Format to 1 decimal place
               : 'N/A';
-
+  
           return { ...therapist, rating: meanRating };
         });
-
+  
         setTherapists(therapistsWithRatings);
       } catch (error) {
         console.error('Error fetching therapists and ratings:', error);
       }
     };
-
+  
     fetchTherapistsAndRatings();
   }, []);
+  
 
   const filteredTherapists = therapists.filter(therapist =>
     therapist.fullName.toLowerCase().includes(searchQuery.toLowerCase())
