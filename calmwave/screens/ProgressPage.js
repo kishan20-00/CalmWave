@@ -74,32 +74,38 @@ const ProgressPage = () => {
         <ActivityIndicator size="large" color="#1e90ff" />
       ) : (
         <>
-          {Object.keys(therapistBookings).map((therapist) => (
-            <View key={therapist} style={styles.therapistContainer}>
-              <View style={styles.therapistHeader}>
-                <Icon name="person" size={24} color="#1e90ff" />
-                <Text style={styles.therapistName}>{therapist}</Text>
-              </View>
-              <View style={styles.sessionInfo}>
-                <Icon name="event" size={20} color="#555" />
-                <Text style={styles.sessionCount}>
-                  Sessions: {therapistBookings[therapist].count}
-                </Text>
-              </View>
-              <Calendar
-                current={today}
-                markedDates={getMarkedDates(therapistBookings[therapist].dates)}
-                theme={{
-                  selectedDayBackgroundColor: '#1e90ff',
-                  todayTextColor: '#1e90ff',
-                  arrowColor: '#1e90ff',
-                  dotColor: '#1e90ff',
-                  selectedDotColor: '#ffffff',
-                }}
-                style={styles.calendar}
-              />
+          {Object.keys(therapistBookings).length === 0 ? (
+            <View style={styles.noProgressContainer}>
+              <Text style={styles.noProgressText}>No progress to display</Text>
             </View>
-          ))}
+          ) : (
+            Object.keys(therapistBookings).map((therapist) => (
+              <View key={therapist} style={styles.therapistContainer}>
+                <View style={styles.therapistHeader}>
+                  <Icon name="person" size={24} color="#1e90ff" />
+                  <Text style={styles.therapistName}>{therapist}</Text>
+                </View>
+                <View style={styles.sessionInfo}>
+                  <Icon name="event" size={20} color="#555" />
+                  <Text style={styles.sessionCount}>
+                    Sessions: {therapistBookings[therapist].count}
+                  </Text>
+                </View>
+                <Calendar
+                  current={today}
+                  markedDates={getMarkedDates(therapistBookings[therapist].dates)}
+                  theme={{
+                    selectedDayBackgroundColor: '#1e90ff',
+                    todayTextColor: '#1e90ff',
+                    arrowColor: '#1e90ff',
+                    dotColor: '#1e90ff',
+                    selectedDotColor: '#ffffff',
+                  }}
+                  style={styles.calendar}
+                />
+              </View>
+            ))
+          )}
         </>
       )}
     </ScrollView>
@@ -145,6 +151,16 @@ const styles = StyleSheet.create({
     borderColor: '#ccc',
     borderRadius: 10,
     padding: 10,
+  },
+  noProgressContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 50,
+  },
+  noProgressText: {
+    fontSize: 18,
+    color: '#333',
   },
 });
 
