@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { View, TextInput, Button, Text, StyleSheet, Image, TouchableOpacity, Alert, ScrollView } from 'react-native';
+import { View, TextInput, Text, StyleSheet, Image, TouchableOpacity, Alert, ScrollView, ActivityIndicator } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { firestore, storage, auth } from '../firebaseConfig';
 import { collection, addDoc } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 
 const ResourcePage = () => {
   const [title, setTitle] = useState('');
@@ -79,26 +80,48 @@ const ResourcePage = () => {
     <ScrollView contentContainerStyle={styles.container}>
       <Text style={styles.heading}>Write an Article</Text>
       
-      <TextInput
-        style={styles.input}
-        value={title}
-        onChangeText={setTitle}
-        placeholder="Title"
-      />
-      
-      <TextInput
-        style={[styles.input, styles.textArea]}
-        value={content}
-        onChangeText={setContent}
-        placeholder="Content"
-        multiline
-        numberOfLines={5}
-      />
+      <View style={styles.inputContainer}>
+        <Icon name="title" size={24} color="#555" style={styles.inputIcon} />
+        <TextInput
+          style={styles.input}
+          value={title}
+          onChangeText={setTitle}
+          placeholder="Title"
+          placeholderTextColor="#999"
+        />
+      </View>
+
+      <View style={[styles.inputContainer, styles.textAreaContainer]}>
+        <Icon name="description" size={24} color="#555" style={styles.inputIcon} />
+        <TextInput
+          style={[styles.input, styles.textArea]}
+          value={content}
+          onChangeText={setContent}
+          placeholder="Content"
+          placeholderTextColor="#999"
+          multiline
+          numberOfLines={5}
+        />
+      </View>
 
       {image && <Image source={{ uri: image }} style={styles.previewImage} />}
-      <Button title="Pick an image" onPress={pickImage} />
 
-      <Button title={loading ? "Saving..." : "Save Article"} onPress={handleSaveArticle} disabled={loading} />
+      <TouchableOpacity style={styles.imagePickerButton} onPress={pickImage}>
+        <Icon name="image" size={24} color="#fff" />
+        <Text style={styles.imagePickerButtonText}>Pick an Image</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity
+        style={[styles.saveButton, loading && styles.disabledButton]}
+        onPress={handleSaveArticle}
+        disabled={loading}
+      >
+        {loading ? (
+          <ActivityIndicator size="small" color="#fff" />
+        ) : (
+          <Text style={styles.saveButtonText}>Save Article</Text>
+        )}
+      </TouchableOpacity>
     </ScrollView>
   );
 };
@@ -107,21 +130,35 @@ const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
     padding: 20,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#B0D0D3',
   },
   heading: {
     fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 20,
     color: '#333',
+    textAlign: 'center',
   },
-  input: {
+  inputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
     borderWidth: 1,
     borderColor: '#ddd',
-    borderRadius: 5,
-    padding: 10,
+    borderRadius: 10,
+    paddingHorizontal: 10,
     marginBottom: 15,
     backgroundColor: '#fff',
+  },
+  inputIcon: {
+    marginRight: 10,
+  },
+  input: {
+    flex: 1,
+    paddingVertical: 10,
+    color: '#333',
+  },
+  textAreaContainer: {
+    alignItems: 'flex-start',
   },
   textArea: {
     height: 150,
@@ -131,6 +168,35 @@ const styles = StyleSheet.create({
     width: '100%',
     height: 200,
     marginBottom: 15,
+    borderRadius: 10,
+  },
+  imagePickerButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#2c925aef',
+    paddingVertical: 15,
+    paddingHorizontal: 20,
+    borderRadius: 10,
+    marginBottom: 20,
+  },
+  imagePickerButtonText: {
+    color: '#fff',
+    marginLeft: 10,
+    fontWeight: 'bold',
+  },
+  saveButton: {
+    backgroundColor: '#3452a3ef',
+    paddingVertical: 15,
+    borderRadius: 10,
+    alignItems: 'center',
+  },
+  saveButtonText: {
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: 16,
+  },
+  disabledButton: {
+    backgroundColor: '#999',
   },
 });
 

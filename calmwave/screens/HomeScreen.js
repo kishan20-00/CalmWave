@@ -11,10 +11,9 @@ const HomeScreen = ({ navigation }) => {
   const [daysWithoutAlcohol, setDaysWithoutAlcohol] = useState(null);
   const [refreshing, setRefreshing] = useState(false);
   const [userEmail, setUserEmail] = useState('');
-  const [userName, setUserName] = useState('');
+  const [userFirstName, setUserFirstName] = useState('');
   const [profileImage, setProfileImage] = useState(null);
   const [randomArticle, setRandomArticle] = useState(null);
-
 
   const fetchUserData = async () => {
     try {
@@ -30,7 +29,9 @@ const HomeScreen = ({ navigation }) => {
 
       if (userDoc.exists()) {
         const userData = userDoc.data();
-        setUserName(userData.fullName);
+        const fullName = userData.fullName;
+        const firstName = fullName.split(' ')[0]; // Extract first name
+        setUserFirstName(firstName);
         setUserEmail(userData.email.split('@')[0]); // Extract first part of email
         setProfileImage(userData.profileImage || defaultProfilePic); // Use default if no image
       }
@@ -56,7 +57,6 @@ const HomeScreen = ({ navigation }) => {
   
     fetchRandomArticle();
   }, []);
-  
 
   const fetchEmotions = async () => {
     try {
@@ -125,7 +125,6 @@ const HomeScreen = ({ navigation }) => {
     if (content.length <= maxLength) return content;
     return `${content.substring(0, maxLength)}...`;
   };
-  
 
   const emotionValueMap = {
     worst: 5,
@@ -158,15 +157,12 @@ const HomeScreen = ({ navigation }) => {
     <ScrollView
       style={styles.container}
       refreshControl={
-        <RefreshControl
-          refreshing={refreshing}
-          onRefresh={onRefresh}
-        />
+        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
       }
     >
       <View style={styles.headerContainer}>
         <View style={styles.headerOverlay}>
-          <Text style={styles.headerText}>Hey..{userName}.! 👋</Text>
+          <Text style={styles.headerText}>Hey.. {userFirstName}! 👋</Text>
           <Image source={profileImage ? { uri: profileImage } : defaultProfilePic} style={styles.profileImage} />
         </View>
       </View>
@@ -221,18 +217,16 @@ const HomeScreen = ({ navigation }) => {
       <View style={styles.articleContainer}>
         <Text style={styles.articleTitle}>Today's Article</Text>
         {randomArticle ? (
-    <>
-      <Text style={styles.articleTitle}>{randomArticle.title}</Text>
-      <Text style={styles.articleContent}>
-      {randomArticle.imageUrl && (
-      <Image source={{ uri: randomArticle.imageUrl }} style={styles.articleImage} />
-    )}
-        {truncateContent(randomArticle.content, 50)}
-      </Text>
-    </>
-  ) : (
-    <Text>Loading...</Text>
-  )}
+          <TouchableOpacity style={styles.articleContent}>
+            <Image source={{ uri: randomArticle.imageUrl }} style={styles.articleImage} />
+            <View style={styles.articleTextContainer}>
+              <Text style={styles.articleHeadline}>{randomArticle.title}</Text>
+              <Text style={styles.articleDescription}>{truncateContent(randomArticle.content, 100)}</Text>
+            </View>
+          </TouchableOpacity>
+        ) : (
+          <Text>Loading...</Text>
+        )}
       </View>
     </ScrollView>
   );
@@ -249,6 +243,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     overflow: 'hidden',
     marginBottom: 20,
+    paddingBottom: 5,
   },
   headerOverlay: {
     flexDirection: 'row',
@@ -285,19 +280,20 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   chart: {
-    marginVertical: 10,
-    marginRight:50,
+    marginVertical: 8,
+    borderRadius: 16,
   },
   infoContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'space-around',
     marginBottom: 20,
   },
   infoBox: {
-    width: '48%',
     backgroundColor: '#ffffff',
     borderRadius: 10,
     padding: 20,
+    flex: 1,
+    marginHorizontal: 10,
     alignItems: 'center',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
@@ -311,17 +307,16 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   infoValue: {
-    fontSize: 24,
+    fontSize: 32,
     fontWeight: 'bold',
-    color: '#009688',
-    marginBottom: 5,
+    color: '#00bfa5',
   },
   infoSubtitle: {
     fontSize: 14,
-    color: '#009688',
+    color: '#757575',
   },
   articleContainer: {
-    backgroundColor: '#746f6f',
+    backgroundColor: '#211515ef',
     borderRadius: 10,
     padding: 20,
     shadowColor: '#000',
@@ -329,10 +324,10 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 5,
     elevation: 5,
-    marginBottom: 30,
+    marginBottom: 10,
   },
   articleTitle: {
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: 'bold',
     marginBottom: 10,
     color: '#fff',
@@ -341,25 +336,24 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
+  articleImage: {
+    width: 90,
+    height: 90,
+    borderRadius: 10,
+    marginRight: 10,
+  },
   articleTextContainer: {
     flex: 1,
-    color: '#fff',
   },
   articleHeadline: {
     fontSize: 16,
     fontWeight: 'bold',
     marginBottom: 5,
-    color: '#fff',
+    color: '#e3f7f7ef',
   },
   articleDescription: {
     fontSize: 14,
-    color: '#fff',
-  },
-  articleImage: {
-    width: 80,
-    height: 80,
-    borderRadius: 10,
-    marginLeft: 10,
+    color: '#e3f7f7ef',
   },
 });
 

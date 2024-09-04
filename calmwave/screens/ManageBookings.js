@@ -4,6 +4,7 @@ import DropDownPicker from 'react-native-dropdown-picker';
 import { firestore } from '../firebaseConfig';
 import { collection, query, where, getDocs, updateDoc, doc } from 'firebase/firestore';
 import { auth } from '../firebaseConfig';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 const ManageBookings = () => {
   const [bookings, setBookings] = useState([]);
@@ -54,15 +55,27 @@ const ManageBookings = () => {
     }
   };
 
+  const getDropdownBackgroundColor = (status) => {
+    switch (status) {
+      case 'pending':
+        return '#dcc026ef'; // Pending color
+      case 'approved':
+        return '#24c087ef'; // Approved color
+      case 'rejected':
+        return '#da3535'; // Rejected color
+      default:
+        return '#fff'; // Default color
+    }
+  };
+
   const renderBookingItem = ({ item }) => (
     <View style={styles.bookingContainer}>
       <Text style={styles.bookingTitle}>{`Appointment with ${item.therapistFullName}`}</Text>
-      <Text style={styles.bookingDetail}>{`Date: ${item.appointmentDate}`}</Text>
-      <Text style={styles.bookingDetail}>{`User: ${item.userFullName}`}</Text>
-      <Text style={styles.bookingDetail}>{`Contact: ${item.userContact}`}</Text>
+      <Text style={styles.bookingDetail}><Icon name="calendar-month" size={16} color="#00796B" /> {`Date: ${item.appointmentDate}`}</Text>
+      <Text style={styles.bookingDetail}><Icon name="account" size={16} color="#00796B" /> {`User: ${item.userFullName}`}</Text>
+      <Text style={styles.bookingDetail}><Icon name="phone" size={16} color="#00796B" /> {`Contact: ${item.userContact}`}</Text>
       
-      {/* Wrap the DropDownPicker with a View */}
-      <View style={{ zIndex: statusPickerOpen[item.id] ? 2000 : 0, position: 'relative' }}>
+      <View style={styles.dropdownContainer}>
         <DropDownPicker
           open={statusPickerOpen[item.id] || false}
           value={selectedStatus[item.id] || item.status}
@@ -74,15 +87,15 @@ const ManageBookings = () => {
             handleStatusChange(item.id, value);
           }}
           setItems={() => {}}
-          style={styles.dropdown}
-          dropDownContainerStyle={styles.dropdownContainer}
+          style={[styles.dropdown, { backgroundColor: getDropdownBackgroundColor(selectedStatus[item.id] || item.status) }]}
+          dropDownContainerStyle={[styles.dropdownContainerStyle, { backgroundColor: getDropdownBackgroundColor(selectedStatus[item.id] || item.status) }]}
           placeholder="Select status"
+          textStyle={styles.dropdownText}
+          dropDownDirection="TOP" // Attempt to open upwards
         />
       </View>
     </View>
   );
-  
-  
 
   if (loading) {
     return <ActivityIndicator size="large" color="#007BFF" style={styles.loader} />;
@@ -92,14 +105,12 @@ const ManageBookings = () => {
     <View style={styles.container}>
       <Text style={styles.header}>Manage Bookings</Text>
       <FlatList
-  data={bookings}
-  keyExtractor={(item) => item.id}
-  renderItem={renderBookingItem}
-  style={{ flex: 1 }}
-  contentContainerStyle={{ paddingBottom: 20 }}
-  scrollEnabled={!Object.values(statusPickerOpen).includes(true)} // Disable scrolling when dropdown is open
-/>
-
+        data={bookings}
+        keyExtractor={(item) => item.id}
+        renderItem={renderBookingItem}
+        style={{ flex: 1 }}
+        contentContainerStyle={{ paddingBottom: 20 }}
+      />
     </View>
   );
 };
@@ -109,13 +120,13 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 20,
     backgroundColor: '#B0D0D3',
-    marginTop: 50,
   },
   header: {
     fontSize: 26,
     fontWeight: 'bold',
     color: '#004D40',
     marginBottom: 20,
+    marginTop: 40,
   },
   bookingContainer: {
     padding: 15,
@@ -133,23 +144,35 @@ const styles = StyleSheet.create({
   bookingTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    marginBottom: 5,
+    marginBottom: 20,
   },
   bookingDetail: {
     fontSize: 16,
     color: '#555555',
-    marginBottom: 5,
+    marginBottom: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  dropdownContainer: {
+    position: 'relative',
+    zIndex: 2000,
   },
   dropdown: {
     marginTop: 10,
-    borderColor: '#B0BEC5',
+    borderColor: '#9e9898ef',
     borderWidth: 1,
     height: 40,
-    backgroundColor: '#FAFAFA',
+    marginBottom: 5,
   },
-  dropdownContainer: {
-    borderColor: '#B0BEC5',
-    backgroundColor: '#FAFAFA',
+  dropdownContainerStyle: {
+    borderColor: '#423939ef',
+  },
+  dropdownText: {
+    color: '#fff',
+    fontWeight: '600',
+    textShadowColor: '#000', // Shadow color
+    textShadowOffset: { width: 1, height: 1 }, // Shadow offset
+    textShadowRadius: 1, // Shadow blur radius
   },
   loader: {
     flex: 1,
@@ -157,7 +180,5 @@ const styles = StyleSheet.create({
     backgroundColor: '#E8F5E9',
   },
 });
-
-
 
 export default ManageBookings;

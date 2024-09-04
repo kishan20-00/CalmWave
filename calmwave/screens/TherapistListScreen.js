@@ -161,10 +161,17 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   image: {
-    width: 90,
-    height: 90,
+    width: 100,
+    height: 100,
     borderRadius: 45,
     marginBottom: 15,
+    borderWidth: 2,           
+    borderColor: '#ad781587', // Updated border color
+    shadowColor: '#000',      // Shadow color (black in this case)
+    shadowOffset: { width: 0, height: 2 }, // Shadow offset
+    shadowOpacity: 0.3,       // Shadow opacity
+    shadowRadius: 4,          // Shadow blur radius
+    elevation: 5,             // For Android shadow
   },
   infoContainer: {
     alignItems: 'center',
