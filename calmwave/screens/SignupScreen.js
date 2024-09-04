@@ -9,6 +9,7 @@ import logo from '../assets/Logo.png'; // Adjust the path as necessary
 
 const SignupScreen = ({ navigation }) => {
   const [email, setEmail] = useState('');
+  const [fullName, setFullName] = useState('');
   const [password, setPassword] = useState('');
   const [retypePassword, setRetypePassword] = useState('');
   const [age, setAge] = useState('');
@@ -41,6 +42,7 @@ const SignupScreen = ({ navigation }) => {
 
         const userDocRef = doc(firestore, 'users', userCredential.user.uid);
         await setDoc(userDocRef, {
+          fullName,
           email,
           age,
           role,
@@ -50,7 +52,7 @@ const SignupScreen = ({ navigation }) => {
         if (role === 'therapist') {
           navigation.navigate('TherapistHome');
         } else {
-          navigation.navigate('Home');
+          navigation.navigate('EmotionForm');
         }
       })
       .catch((error) => {
@@ -68,8 +70,8 @@ const SignupScreen = ({ navigation }) => {
         {error ? <Text style={styles.error}>{error}</Text> : null}
         <TextInput
           style={styles.input}
-          placeholder="Name"
-          onChangeText={debouncedSetEmail} // Assuming debouncing for the Name field
+          placeholder="Full Name"
+          onChangeText={setFullName} // Assuming debouncing for the Name field
         />
         <TextInput
           style={styles.input}

@@ -1,44 +1,47 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, StyleSheet, ScrollView, ActivityIndicator } from 'react-native';
 import { Calendar } from 'react-native-calendars';
 import { firestore, auth } from '../firebaseConfig';
 import { collection, getDocs, query, where } from 'firebase/firestore';
 import moment from 'moment';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import { useFocusEffect } from '@react-navigation/native';
 
 const ProgressPage = () => {
   const [bookingData, setBookingData] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchUserBookings = async () => {
-      try {
-        const user = auth.currentUser;
-        if (user) {
-          const bookingsCollection = collection(firestore, 'booking');
-          const q = query(bookingsCollection, where('userEmail', '==', user.email));
-          const querySnapshot = await getDocs(q);
-          const bookings = [];
-          querySnapshot.forEach((doc) => {
-            const data = doc.data();
-            const parsedDate = moment(data.appointmentDate, 'ddd MMM DD YYYY HH:mm:ss', true);
-            if (!parsedDate.isValid()) {
-              console.warn('Invalid or missing appointmentDate:', data);
-            } else {
-              bookings.push({ ...data, appointmentDate: parsedDate.toISOString() });
-            }
-          });
-          setBookingData(bookings);
-        }
-      } catch (error) {
-        console.error('Error fetching user bookings:', error);
-      } finally {
-        setLoading(false);
+  const fetchUserBookings = async () => {
+    try {
+      const user = auth.currentUser;
+      if (user) {
+        const bookingsCollection = collection(firestore, 'booking');
+        const q = query(bookingsCollection, where('userEmail', '==', user.email));
+        const querySnapshot = await getDocs(q);
+        const bookings = [];
+        querySnapshot.forEach((doc) => {
+          const data = doc.data();
+          const parsedDate = moment(data.appointmentDate, 'ddd MMM DD YYYY HH:mm:ss', true);
+          if (!parsedDate.isValid()) {
+            console.warn('Invalid or missing appointmentDate:', data);
+          } else {
+            bookings.push({ ...data, appointmentDate: parsedDate.toISOString() });
+          }
+        });
+        setBookingData(bookings);
       }
-    };
+    } catch (error) {
+      console.error('Error fetching user bookings:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    fetchUserBookings();
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      fetchUserBookings();
+    }, [])
+  );
 
   const formatDate = (dateString) => {
     const date = moment(dateString);

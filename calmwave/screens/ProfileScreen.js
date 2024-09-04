@@ -71,7 +71,7 @@ const ProfileScreen = () => {
             const emotion = latestEmotionData.emotion || 'medium';
             setLatestEmotion(emotion);
           } else {
-            setLatestEmotion('neutral');
+            setLatestEmotion('medium');
           }
         }
       }
@@ -82,7 +82,7 @@ const ProfileScreen = () => {
 
   useEffect(() => {
     if (latestEmotion) {
-      const emotionInfo = emotionData[latestEmotion] || emotionData['neutral'];
+      const emotionInfo = emotionData[latestEmotion] || emotionData['medium'];
       setMotivationalQuote(emotionInfo.quote);
       setSuggestedActivity(emotionInfo.activity);
       setSuggestedIcon(emotionInfo.icon);

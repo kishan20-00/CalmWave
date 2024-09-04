@@ -187,10 +187,10 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   profileImage: {
-    width: 200,
+    width: 300,
     height: 200,
-    borderRadius: 100,
-    marginTop: 35,
+    borderRadius: 30,
+    marginTop: 40,
     marginBottom: 15,
     borderColor: '#807070ef',
     borderWidth: 5,

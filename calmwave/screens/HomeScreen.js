@@ -282,6 +282,7 @@ const styles = StyleSheet.create({
   chart: {
     marginVertical: 8,
     borderRadius: 16,
+    marginRight: 50,
   },
   infoContainer: {
     flexDirection: 'row',

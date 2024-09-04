@@ -24,6 +24,7 @@ import ResourcePage from './screens/AddResource';
 import ArticleListPage from './screens/ArticleList';
 import ArticleDetailPage from './screens/ArticleDetails';
 import ProgressPage from './screens/ProgressPage';
+import DashboardScreen from './screens/DashboardPage';
 
 const Stack = createStackNavigator();
 const Drawer = createDrawerNavigator();
@@ -175,6 +176,15 @@ function MyDrawer() {
         }}
       />
       <Drawer.Screen
+        name="Dashboard"
+        component={DashboardScreen}
+        options={{
+          drawerIcon: ({ color, size }) => (
+            <Icon name="chart-line" color={color} size={size} />
+          ),
+        }}
+      />
+      <Drawer.Screen
         name="Progress"
         component={ProgressPage}
         options={{
@@ -212,6 +222,11 @@ export default function App() {
         <Stack.Screen
           name="ManageBookings"
           component={ManageBookings}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="EmotionForm"
+          component={EmotionFormScreen}
           options={{ headerShown: false }}
         />
         <Stack.Screen
