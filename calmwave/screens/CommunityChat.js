@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, TextInput, Button, StyleSheet, ScrollView, TouchableOpacity, Image, ActivityIndicator, TouchableHighlight } from 'react-native';
 import { firestore, auth } from '../firebaseConfig';
 import { collection, query, onSnapshot, addDoc, orderBy } from 'firebase/firestore';
@@ -14,6 +14,8 @@ const CommunityChat = () => {
   const [message, setMessage] = useState('');
   const [newChannelName, setNewChannelName] = useState('');
   const [loading, setLoading] = useState(true);
+
+  const scrollViewRef = useRef(null);
 
   // Fetch channels from Firestore
   useEffect(() => {
@@ -47,6 +49,7 @@ const CommunityChat = () => {
           });
           setMessages(messagesList);
           setLoading(false);
+          scrollToBottom();
         });
         return () => unsubscribe();
       };
@@ -54,6 +57,12 @@ const CommunityChat = () => {
       fetchMessages();
     }
   }, [selectedChannel]);
+
+  const scrollToBottom = () => {
+    if (scrollViewRef.current) {
+      scrollViewRef.current.scrollToEnd({ animated: true });
+    }
+  };
 
   const handleSend = async () => {
     if (message.trim() && selectedChannel) {
@@ -66,6 +75,7 @@ const CommunityChat = () => {
           user: auth.currentUser.email,
         });
         setMessage('');
+        scrollToBottom();
       } catch (error) {
         console.error('Error adding message: ', error);
       } finally {
@@ -133,7 +143,11 @@ const CommunityChat = () => {
           <Text style={styles.sectionTitle}>Chat Environment 👋 :</Text>
           <View style={styles.chatContainer}>
             <Image source={chatWallpaper} style={styles.wallpaper} />
-            <ScrollView style={styles.chatScroll}>
+            <ScrollView
+              style={styles.chatScroll}
+              ref={scrollViewRef}
+              onContentSizeChange={scrollToBottom}
+            >
               {messages.map((msg) => (
                 <View
                   key={msg.id}
@@ -225,7 +239,7 @@ const styles = StyleSheet.create({
   channelItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 10,
+    padding: 5,
     marginVertical: 5,
     backgroundColor: '#fff',
     borderRadius: 10,
@@ -240,8 +254,8 @@ const styles = StyleSheet.create({
     borderColor: '#a39f9f',
   },
   communityImage: {
-    width: 40,
-    height: 40,
+    width: 35,
+    height: 35,
     borderRadius: 20,
     marginRight: 10,
   },
@@ -297,7 +311,7 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
   },
   messageText: {
-    fontSize: 16,
+    fontSize: 15,
   },
   messageInfo: {
     flexDirection: 'row',
@@ -305,8 +319,8 @@ const styles = StyleSheet.create({
     marginBottom: 5,
   },
   profileImage: {
-    width: 30,
-    height: 30,
+    width: 20,
+    height: 20,
     borderRadius: 15,
     marginRight: 5,
   },
@@ -324,7 +338,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     borderRadius: 20,
     backgroundColor:'#ffffff6b',
-    marginBottom: 50,
+    marginBottom: 10,
   },
   input: {
     flex: 1,

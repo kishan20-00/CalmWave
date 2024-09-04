@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Button, Image, ScrollView, Platform } from 'react-native';
+import { View, Text, StyleSheet, Button, Image, ScrollView, Platform, TouchableOpacity } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { firestore, auth } from '../firebaseConfig';
 import { collection, getDocs, query, where, addDoc } from 'firebase/firestore';
 import { AirbnbRating } from 'react-native-ratings';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 const BookingPage = ({ route, navigation }) => {
   const { therapist } = route.params;
@@ -23,7 +24,6 @@ const BookingPage = ({ route, navigation }) => {
       if (user) {
         setUserEmail(user.email);
 
-        // Fetch additional user info from Firestore if needed
         const usersCollection = collection(firestore, 'users');
         const q = query(usersCollection, where('email', '==', user.email));
         const querySnapshot = await getDocs(q);
@@ -106,11 +106,21 @@ const BookingPage = ({ route, navigation }) => {
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <Image
-        source={{ uri: therapist.profileImage || 'https://via.placeholder.com/150' }}
-        style={styles.profileImage}
-      />
-      <Text style={styles.name}>{therapist.fullName}</Text>
+      <View style={styles.profileContainer}>
+        <Image
+          source={{ uri: therapist.profileImage || 'https://via.placeholder.com/150' }}
+          style={styles.profileImage}
+        />
+        <Text style={styles.name}>{therapist.fullName}</Text>
+        <Text style={styles.heading}>{therapist.hospitalName}</Text>
+        <Text style={styles.experience}>{therapist.experience} years of experience</Text>
+      </View>
+      
+      <View style={styles.infoContainer}>
+        <Icon name="phone" size={20} color="#3452a3ef" />
+        <Text style={styles.contact}>{therapist.contactNumber}</Text>
+      </View>
+      
       <View style={styles.ratingContainer}>
         <AirbnbRating
           count={5}
@@ -120,23 +130,31 @@ const BookingPage = ({ route, navigation }) => {
           isDisabled={true}
           showRating={false} // Hide the default review text
         />
+        <Text style={styles.replyCount}>({replyCount} replies)</Text>
       </View>
-      <Text style={styles.heading}>{therapist.hospitalName}</Text>
-      <Text>{therapist.experience} years of experience</Text>
-      <Text>Contact: {therapist.contactNumber}</Text>
-      
-      {/* Rating and Reply Count */}
-      <Text style={styles.replyCount}>Replies: {replyCount}</Text>
-      
-      <Button title="Select Date" onPress={() => setDatePickerVisible(true)} />
-      <Button title="Select Time" onPress={() => setTimePickerVisible(true)} />
-      
-      <Text style={styles.selectedDate}>{selectedDate ? `Selected Date: ${selectedDate.toDateString()}` : 'No Date Selected'}</Text>
-      <Text style={styles.selectedTime}>{selectedTime ? `Selected Time: ${selectedTime.toLocaleTimeString()}` : 'No Time Selected'}</Text>
-      
-      <Button title="Book Appointment" onPress={handleBooking} />
 
-      {/* Date Picker */}
+      <TouchableOpacity style={styles.dateButton} onPress={() => setDatePickerVisible(true)}>
+        <Icon name="calendar" size={20} color="#FFFFFF" />
+        <Text style={styles.dateButtonText}>Select Date</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity style={styles.timeButton} onPress={() => setTimePickerVisible(true)}>
+        <Icon name="clock-outline" size={20} color="#FFFFFF" />
+        <Text style={styles.timeButtonText}>Select Time</Text>
+      </TouchableOpacity>
+      
+      <Text style={styles.selectedDate}>
+        {selectedDate ? `Selected Date: ${selectedDate.toDateString()}` : 'No Date Selected'}
+      </Text>
+      <Text style={styles.selectedTime}>
+        {selectedTime ? `Selected Time: ${selectedTime.toLocaleTimeString()}` : 'No Time Selected'}
+      </Text>
+      
+      <TouchableOpacity style={styles.bookButton} onPress={handleBooking}>
+        <Icon name="check-circle" size={20} color="#FFFFFF" />
+        <Text style={styles.bookButtonText}>Book Appointment</Text>
+      </TouchableOpacity>
+
       {datePickerVisible && (
         <DateTimePicker
           value={selectedDate}
@@ -146,7 +164,6 @@ const BookingPage = ({ route, navigation }) => {
         />
       )}
 
-      {/* Time Picker */}
       {timePickerVisible && (
         <DateTimePicker
           value={selectedTime}
@@ -162,45 +179,118 @@ const BookingPage = ({ route, navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
-    padding: 15,
+    padding: 20,
     backgroundColor: '#b9e0eb',
   },
-  profileImage: {
-    width: 400,
-    height: 200,
-    borderRadius: 40,
+  profileContainer: {
+    alignItems: 'center',
     marginBottom: 20,
-    marginTop: 70,
-    alignSelf: 'center',
+  },
+  profileImage: {
+    width: 200,
+    height: 200,
+    borderRadius: 100,
+    marginTop: 35,
+    marginBottom: 15,
+    borderColor: '#807070ef',
+    borderWidth: 5,
   },
   name: {
-    fontSize: 24,
+    fontSize: 28,
     fontWeight: 'bold',
-    marginBottom: 20,
-    textAlign: 'left',
+    color: '#003D4D',
+    textAlign: 'center',
+    marginBottom: 5,
   },
   heading: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 0,
-    textAlign: 'left',
+    fontSize: 20,
+    color: '#555555',
+    textAlign: 'center',
+    marginBottom: 10,
+  },
+  experience: {
+    fontSize: 16,
+    color: '#3452a3ef',
+    textAlign: 'center',
+  },
+  infoContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginVertical: 10,
+  },
+  contact: {
+    fontSize: 16,
+    color: '#3452a3ef',
+    marginLeft: 5,
+  },
+  ratingContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginVertical: 15,
+  },
+  replyCount: {
+    fontSize: 16,
+    color: '#3452a3ef',
+    marginLeft: 10,
+  },
+  dateButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#3452a3ef',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 25,
+    marginVertical: 10,
+  },
+  timeButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#3452a3ef',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 25,
+    marginVertical: 10,
+  },
+  dateButtonText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    marginLeft: 10,
+  },
+  timeButtonText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    marginLeft: 10,
   },
   selectedDate: {
     fontSize: 16,
+    color: '#555555',
+    textAlign: 'center',
     marginTop: 10,
   },
   selectedTime: {
     fontSize: 16,
-    marginTop: 10,
+    color: '#555555',
+    textAlign: 'center',
+    marginTop: 5,
   },
-  ratingContainer: {
+  bookButton: {
+    flexDirection: 'row',
     alignItems: 'center',
-    marginVertical: 20,
-    marginLeft: 250,
+    justifyContent: 'center',
+    backgroundColor: '#2c925aef',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 25,
+    marginTop: 20,
   },
-  replyCount: {
+  bookButtonText: {
+    color: '#FFFFFF',
     fontSize: 16,
-    marginTop: 10,
+    marginLeft: 10,
   },
 });
 

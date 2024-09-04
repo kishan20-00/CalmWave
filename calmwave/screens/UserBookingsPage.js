@@ -1,9 +1,10 @@
 import React, { useState, useCallback } from 'react';
-import { View, Text, StyleSheet, Button, FlatList, Alert, Modal, TextInput, TouchableOpacity, RefreshControl } from 'react-native';
+import { View, Text, StyleSheet, FlatList, Alert, Modal, TextInput, TouchableOpacity, RefreshControl } from 'react-native';
 import { collection, query, where, getDocs, updateDoc, doc } from 'firebase/firestore';
 import { firestore, auth } from '../firebaseConfig';
 import { Rating } from 'react-native-ratings';
 import { useFocusEffect } from '@react-navigation/native';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 
 const UserBookingsPage = ({ navigation }) => {
   const [bookings, setBookings] = useState([]);
@@ -79,17 +80,23 @@ const UserBookingsPage = ({ navigation }) => {
   // Render each booking item
   const renderBookingItem = ({ item }) => (
     <View style={styles.bookingContainer}>
-      <Text style={styles.therapistName}>Therapist: {item.therapistFullName}</Text>
-      <Text style={styles.bookingDetail}>Appointment Date: {item.appointmentDate}</Text>
-      <Text style={styles.bookingDetail}>Status: {item.status}</Text>
-      {item.feedbackProvided ? (
-        <Text style={styles.feedbackText}>Feedback: {item.feedback} (Rating: {item.rating} ⭐)</Text>
-      ) : (
-        <Button title="Give Feedback" onPress={() => {
-          setSelectedBooking(item);
-          setFeedbackModalVisible(true);
-        }} />
-      )}
+      <Icon name="person" size={24} color="#29d395ef" style={styles.icon} />
+      <View style={styles.detailsContainer}>
+        <Text style={styles.therapistName}>{item.therapistFullName}</Text>
+        <Text style={styles.bookingDetail}><Icon name="event" size={16} color="#555555" /> {item.appointmentDate}</Text>
+        <Text style={styles.bookingDetail}><Icon name="info" size={16} color="#555555" /> {item.status}</Text>
+        {item.feedbackProvided ? (
+          <Text style={styles.feedbackText}><Icon name="feedback" size={16} color="#FF5722" /> {item.feedback} (Rating: {item.rating} ⭐)</Text>
+        ) : (
+          <TouchableOpacity style={styles.feedbackButton} onPress={() => {
+            setSelectedBooking(item);
+            setFeedbackModalVisible(true);
+          }}>
+            <Icon name="feedback" size={20} color="#FFFFFF" />
+            <Text style={styles.feedbackButtonText}>Give Feedback</Text>
+          </TouchableOpacity>
+        )}
+      </View>
     </View>
   );
 
@@ -155,6 +162,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#B0D0D3',
   },
   bookingContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
     padding: 15,
     marginBottom: 15,
     backgroundColor: '#FFFFFF',
@@ -167,6 +176,12 @@ const styles = StyleSheet.create({
     shadowRadius: 6,
     elevation: 4,
   },
+  icon: {
+    marginRight: 10,
+  },
+  detailsContainer: {
+    flex: 1,
+  },
   therapistName: {
     fontSize: 18,
     fontWeight: 'bold',
@@ -176,11 +191,28 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#555555',
     marginBottom: 5,
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   feedbackText: {
     marginTop: 10,
     fontStyle: 'italic',
     color: '#555',
+  },
+  feedbackButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#3452a3ef',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 5,
+    marginTop: 10,
+    width: 250,
+  },
+  feedbackButtonText: {
+    color: '#FFFFFF',
+    fontWeight: 'bold',
+    marginLeft: 5,
   },
   emptyText: {
     fontSize: 16,
@@ -216,7 +248,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
   },
   submitButton: {
-    backgroundColor: '#1E88E5',
+    backgroundColor: '#3452a3ef',
     paddingVertical: 10,
     paddingHorizontal: 20,
     borderRadius: 5,
